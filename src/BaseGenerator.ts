@@ -3,6 +3,12 @@ import CompiledViewTemplate = require('./CompiledViewTemplate');
 var CRLF = '\r\n';
 var INDENT = '    ';
 
+/// <summary>
+/// Base generator class that others generators can subclass from. Contains common
+/// generator utilities that can be reused, like _addLine, _getIndent, etc. Output
+/// is always accessible via the public output property, resulting compiled template
+/// is accessible from the template property.
+/// </summary>
 class BaseGenerator {
     public output = '';
     public template: CompiledViewTemplate;

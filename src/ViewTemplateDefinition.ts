@@ -1,3 +1,11 @@
+/// <summary>
+/// Schema for a OneJS template, describes the element structure, what attributes are expected
+/// and how they are parsed.
+/// </summary>
+/// <remarks>
+/// TODO: There should be regex matches defined for attributes so that we can validate
+/// they are acceptable.
+/// </remarks>
 var ViewTemplateDefinition = {
 
     'js-template': {

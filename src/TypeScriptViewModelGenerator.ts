@@ -1,6 +1,9 @@
 import CompiledViewTemplate = require('./CompiledViewTemplate');
 import BaseGenerator = require('./BaseGenerator');
 
+/// <summary>
+/// Generates a TypeScript view model interface from a OneJS template.
+/// </summary>
 class TypeScriptViewModelGenerator extends BaseGenerator {
     public generate(templateContent: string): string {
         var _this = this;

@@ -1,6 +1,9 @@
 import BaseGenerator = require('./BaseGenerator');
 import CompiledViewTemplate = require('./CompiledViewTemplate');
 
+/// <summary>
+/// Generates a TypeScript view class from a OneJS template.
+/// </summary>
 class TypeScriptGenerator extends BaseGenerator {
 
     public generate(templateContent: string): string {

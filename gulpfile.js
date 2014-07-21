@@ -1,22 +1,23 @@
 'use strict';
 
 var gulp = require('gulp');
-var mocha = require('gulp-mocha');
+var tsc = require('gulp-tsc');
 
 var paths = {
-  scripts: ['./*.js', './test/*.js', '!./gulpfile.js']
+    source: [ 'src/*.ts' ]
 };
 
-gulp.task('test', function() {
-  return gulp.src('./test/*.js')
-    .pipe(mocha({
-      reporter: 'dot'
-    }));
+gulp.task('tsc', function() {
+    gulp.src(paths.source)
+        .pipe(tsc({
+            module: 'commonjs'
+        }))
+        .pipe(gulp.dest('dist'));
 });
 
 gulp.task('watch', function() {
-  gulp.watch(paths.scripts, ['lint', 'test']);
+  gulp.watch(paths.source, ['default']);
 });
 
-gulp.task('default', ['lint', 'test']);
+gulp.task('default', ['tsc']);
 
