@@ -1,4 +1,4 @@
-# [gulp](https://github.com/gulpjs/gulp)-onejs-compiler [![Build Status](https://travis-ci.org/dzearing/onejs-compiler.png?branch=master)](https://travis-ci.org/dzearing/onejs-compiler)
+# onejs-compiler [![Build Status](https://travis-ci.org/dzearing/onejs-compiler.png?branch=master)](https://travis-ci.org/dzearing/onejs-compiler)
 
 > Compiler support for OneJS templates, which generates results in a variety of flavors.
 
