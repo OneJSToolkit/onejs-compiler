@@ -1,0 +1,42 @@
+{
+  "name": "onejs-compiler",
+  "version": "0.0.1",
+  "description": "Compiler onejs html templates into javascript.",
+  "license": "MIT",
+  "repository": "dzearing/onejs-compiler",
+  "author": {
+    "name": "David Zearing",
+    "email": "dzearing@hotmail.com",
+    "url": "http://github.com/dzearing"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "gulpplugin",
+    "test",
+    "testing",
+    "qunit"
+  ],
+  "dependencies": {
+    "gulp-util": "~2.2.0",
+    "phantomjs": "~1.9.2-6",
+    "chalk": "^0.4.0",
+    "xmldom": "^0.1.19",
+    "node-html-encoder": "0.0.2"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "gulp-util": "~2.2.14",
+    "gulp": "^3.6.0",
+    "gulp-mocha": "~0.4.1",
+    "gulp-jshint": "^1.5.3",
+    "through": "^2.3.4",
+    "through2": "^0.4.2",
+    "event-stream": "^3.1.5",
+    "should": "^4.0.0"
+  }
+}
