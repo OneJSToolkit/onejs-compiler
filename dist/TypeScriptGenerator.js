@@ -6,6 +6,8 @@ var __extends = this.__extends || function (d, b) {
 };
 var BaseGenerator = require('./BaseGenerator');
 
+var Encode = require('htmlencode');
+
 /// <summary>
 /// Generates a TypeScript view class from a OneJS template.
 /// </summary>
@@ -152,7 +154,7 @@ var TypeScriptGenerator = (function (_super) {
             } else if (childNode.nodeType === element.TEXT_NODE) {
                 var text = childNode.textContent.trim();
                 if (text) {
-                    this._addLine("'" + text + "' +", indent);
+                    this._addLine("'" + Encode.htmlEncode(text) + "' +", indent);
                 }
             }
         }
@@ -195,16 +197,17 @@ var TypeScriptGenerator = (function (_super) {
         var valuesToAdd = [];
         var existingValue = attributeName ? element.getAttribute(attributeName) : '';
 
-        if (attributeName) {
-            element.removeAttribute(attributeName);
-        }
-
         // Root node needs to inject no matter what.
         if (injectBaseProperty && !annotationCollection) {
             annotationCollection = {};
         }
 
         if (annotationCollection) {
+            // Remove attribute because we're going to use a creation method.
+            if (attributeName) {
+                element.removeAttribute(attributeName);
+            }
+
             if (injectBaseProperty) {
                 if (existingValue) {
                     existingValue = "'" + existingValue + " ' + ";

@@ -1,0 +1,4 @@
+interface IHeaderModel {
+}
+
+export = IHeaderModel;

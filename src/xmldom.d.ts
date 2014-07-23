@@ -1,12 +1,13 @@
 declare module 'xmldom' {
 
-  interface IDOMParserStatic {
-    new(): IDOMParser;
-  }
+    interface IDOMParserStatic {
+        new(): IDOMParser;
+    }
 
-  interface IDOMParser {
+    interface IDOMParser {
         parseFromString(content: string);
-  }
+    }
 
-  export var DOMParser: IDOMParserStatic;
+    export
+    var DOMParser: IDOMParserStatic;
 }
