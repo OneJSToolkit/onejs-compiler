@@ -24,6 +24,10 @@ var ViewTemplateDefinition = {
             'js-userAction': {
                 description: 'Defines events to apply to the given element.',
                 example: 'click:onClick, mousemove:onMouseMove'
+            },
+            'js-css': {
+                description: 'Defines a stylesheet file to require and load on initialization.',
+                example: 'Control.css'
             }
         },
         children: [

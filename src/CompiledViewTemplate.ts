@@ -12,6 +12,7 @@ class CompiledViewTemplate {
     public annotations: any;
     public childViews: any;
     public properties: any;
+    public cssInclude: string;
     public events: string[];
     public errors: string[];
     public documentElement: HTMLElement;
@@ -38,6 +39,7 @@ class CompiledViewTemplate {
         this.annotations = {};
         this.childViews = {};
         this.properties = {};
+        this.cssInclude = '';
         this.events = [];
         this.errors = [];
         this.documentElement = null;
@@ -153,6 +155,10 @@ class CompiledViewTemplate {
         this.viewModelType = element.getAttribute('js-model') || '';
         element.removeAttribute('js-model');
 
+        this.cssInclude = (element.getAttribute('js-css') || '');
+        element.removeAttribute('js-css');
+
+        this.cssInclude
         if (this.name.indexOf('.') > -1) {
             var nameParts = this.name.split('.');
             this.name = nameParts[nameParts.length - 1];
@@ -211,7 +217,7 @@ class CompiledViewTemplate {
                 dest = 'attr';
             }
 
-            var expectedSourceType = 'string';
+            var expectedSourceType = (source.indexOf('is') == 0) ? 'boolean' : 'string';
 
             switch (dest) {
                 case 'attr':

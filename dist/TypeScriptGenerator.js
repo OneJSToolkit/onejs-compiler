@@ -23,6 +23,12 @@ var TypeScriptGenerator = (function (_super) {
         _this._addLine('import Encode = require(\'Encode\');');
         _this._addLine('import ' + interfaceName + ' = require(\'' + interfaceName + '\');');
 
+        if (template.cssInclude) {
+            var safeName = template.cssInclude.replace('.', '');
+            _this._addLine('import ' + safeName + ' = require(\'' + template.cssInclude + '\');');
+            _this._addLine('View.loadStyles(' + safeName + '.styles);');
+        }
+
         if (template.viewModelType) {
             _this._addLine('import ' + template.viewModelType + ' = require(\'' + template.viewModelType + '\');');
         }
@@ -72,6 +78,7 @@ var TypeScriptGenerator = (function (_super) {
         _this._addLine('super(data);', 2);
         _this._addLine();
         _this._addLine('this.viewName = \'' + template.name + '\';', 2);
+        _this._addLine('this.baseClass = \'c-\' + this.viewName + (this.baseClass ? \' \': \'\');', 2);
 
         if (template.viewModelType) {
             _this._addLine('this.viewModelType = ' + template.viewModelType + ';', 2);
@@ -200,7 +207,7 @@ var TypeScriptGenerator = (function (_super) {
         if (annotationCollection) {
             if (injectBaseProperty) {
                 if (existingValue) {
-                    existingValue = "'" + existingValue + "' + ";
+                    existingValue = "'" + existingValue + " ' + ";
                 }
                 existingValue += 'this.base' + this._toTitleCase(attributeName);
             } else {
@@ -212,7 +219,7 @@ var TypeScriptGenerator = (function (_super) {
                 valuesToAdd.push("'" + annotationCollection[valueName] + "'");
             }
 
-            methodCall = " ' + View." + createMethodName + "(" + existingValue;
+            methodCall = " ' + this." + createMethodName + "(" + existingValue;
 
             if (valuesToAdd.length) {
                 methodCall += ", [" + valuesToAdd.join(',') + "]";

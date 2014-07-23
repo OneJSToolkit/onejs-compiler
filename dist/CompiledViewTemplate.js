@@ -27,6 +27,7 @@ var CompiledViewTemplate = (function () {
         this.annotations = {};
         this.childViews = {};
         this.properties = {};
+        this.cssInclude = '';
         this.events = [];
         this.errors = [];
         this.documentElement = null;
@@ -138,6 +139,10 @@ var CompiledViewTemplate = (function () {
         this.viewModelType = element.getAttribute('js-model') || '';
         element.removeAttribute('js-model');
 
+        this.cssInclude = (element.getAttribute('js-css') || '');
+        element.removeAttribute('js-css');
+
+        this.cssInclude;
         if (this.name.indexOf('.') > -1) {
             var nameParts = this.name.split('.');
             this.name = nameParts[nameParts.length - 1];
@@ -196,7 +201,7 @@ var CompiledViewTemplate = (function () {
                 dest = 'attr';
             }
 
-            var expectedSourceType = 'string';
+            var expectedSourceType = (source.indexOf('is') == 0) ? 'boolean' : 'string';
 
             switch (dest) {
                 case 'attr':
