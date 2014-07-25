@@ -17,7 +17,7 @@ var CompiledViewTemplate = (function () {
     }
     CompiledViewTemplate.prototype.parse = function (templateContent) {
         this._reset();
-        this.documentElement = new XMLDOM.DOMParser().parseFromString(templateContent, 'application/xhtml+xml').documentElement;
+        this.documentElement = new XMLDOM.DOMParser().parseFromString(templateContent).documentElement;
 
         this._parseElement(this.documentElement);
     };

@@ -6,8 +6,7 @@ var __extends = this.__extends || function (d, b) {
 };
 var BaseGenerator = require('./BaseGenerator');
 
-var Encode = require('htmlencode');
-
+//import Encode = require('onejs/src/Encode');
 /// <summary>
 /// Generates a TypeScript view class from a OneJS template.
 /// </summary>
@@ -18,24 +17,27 @@ var TypeScriptGenerator = (function (_super) {
     }
     TypeScriptGenerator.prototype.generate = function (templateContent) {
         var _this = this;
-        var template = _this._getTemplate(templateContent);
+        var template = this.template = _this._getTemplate(templateContent);
         var interfaceName = 'I' + template.name + 'Model';
 
         _this._addLine('import View = require(\'View\');');
         _this._addLine('import Encode = require(\'Encode\');');
         _this._addLine('import ' + interfaceName + ' = require(\'' + interfaceName + '\');');
 
-        if (template.cssInclude) {
-            var safeName = template.cssInclude.replace('.', '');
-            _this._addLine('import ' + safeName + ' = require(\'' + template.cssInclude + '\');');
-            _this._addLine('View.loadStyles(' + safeName + '.styles);');
-        }
-
         if (template.viewModelType) {
             _this._addLine('import ' + template.viewModelType + ' = require(\'' + template.viewModelType + '\');');
         }
 
         _this._addChildViewImports(template);
+
+        if (template.cssInclude) {
+            var safeName = template.cssInclude.replace('.', '');
+            _this._addLine('import ' + safeName + ' = require(\'' + template.cssInclude + '\');');
+
+            _this._addLine();
+            _this._addLine('View.loadStyles(' + safeName + '.styles);');
+        }
+
         _this._addLine();
 
         _this._addLine('class ' + template.name + ' extends View {');
@@ -154,7 +156,8 @@ var TypeScriptGenerator = (function (_super) {
             } else if (childNode.nodeType === element.TEXT_NODE) {
                 var text = childNode.textContent.trim();
                 if (text) {
-                    this._addLine("'" + Encode.htmlEncode(text) + "' +", indent);
+                    //this._addLine("'" + Encode.toHtml(text) + "' +", indent);
+                    this._addLine("'" + text + "' +", indent);
                 }
             }
         }
@@ -195,7 +198,7 @@ var TypeScriptGenerator = (function (_super) {
         var annotationCollection = annotation ? annotation[annotationObjectName] : null;
         var methodCall = '';
         var valuesToAdd = [];
-        var existingValue = attributeName ? element.getAttribute(attributeName) : '';
+        var existingValue = element.getAttribute(attributeName) || '';
 
         // Root node needs to inject no matter what.
         if (injectBaseProperty && !annotationCollection) {

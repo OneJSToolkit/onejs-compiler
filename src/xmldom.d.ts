@@ -5,9 +5,8 @@ declare module 'xmldom' {
     }
 
     interface IDOMParser {
-        parseFromString(content: string);
+        parseFromString(content: string, encoding?: string);
     }
 
-    export
-    var DOMParser: IDOMParserStatic;
+    export var DOMParser: IDOMParserStatic;
 }

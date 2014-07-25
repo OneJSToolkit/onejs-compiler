@@ -2,6 +2,7 @@
 
 var gulp = require('gulp');
 var tsc = require('gulp-tsc');
+var flatten = require('gulp-flatten');
 
 var paths = {
     source: [ 'src/*.ts' ]
@@ -9,7 +10,7 @@ var paths = {
 
 gulp.task('tsc', function() {
     gulp.src(paths.source)
-        .pipe(tsc({
+          .pipe(tsc({
             module: 'commonjs'
         }))
         .pipe(gulp.dest('dist'));

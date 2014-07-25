@@ -101,6 +101,9 @@ var ViewTemplateDefinition = {
             'js-userAction': {
                 description: 'Defines events to apply to the given element.',
                 example: 'click:onClick, mousemove:onMouseMove'
+            },
+            'js-id': {
+                description: 'Defines an id for the element so that on activation the view can find the element and provide it to the view model on activation.'
             }
         },
         children: [
