@@ -28,6 +28,8 @@
     "gulp": "^3.6.0",
     "gulp-tsc": "^0.9.2",
     "htmlencode": "0.0.4",
-    "gulp-flatten": "0.0.2"
+    "gulp-flatten": "0.0.2",
+    "gulp-util": "^3.0.0",
+    "gutil": "^1.4.0"
   }
 }

@@ -11,7 +11,7 @@ class TypeScriptViewModelGenerator extends BaseGenerator {
         var interfaceName = 'I' + template.name + 'Model';
 
         _this._addLine('interface ' + interfaceName + ' {');
-
+/*
         // Add properties being bound to.
         for (var propertyName in template.properties) {
             _this._addLine(propertyName + ': ' + template.properties[propertyName].type + ';', 1);
@@ -24,13 +24,15 @@ class TypeScriptViewModelGenerator extends BaseGenerator {
                 _this._addLine(eventName + '(eventArgs?: any): boolean;', 1);
             });
         }
-
+*/
         _this._addLine('}');
         _this._addLine();
         _this._addLine('export = ' + interfaceName + ';');
 
         return _this.output;
     }
+
+
 }
 
 export = TypeScriptViewModelGenerator;

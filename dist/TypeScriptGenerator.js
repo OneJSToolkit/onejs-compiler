@@ -20,10 +20,6 @@ var TypeScriptGenerator = (function (_super) {
         var template = this.template = _this._getTemplate(templateContent);
         var interfaceName = 'I' + template.name + 'Model';
 
-        _this._addLine('import View = require(\'View\');');
-        _this._addLine('import Encode = require(\'Encode\');');
-        _this._addLine('import ' + interfaceName + ' = require(\'' + interfaceName + '\');');
-
         if (template.viewModelType) {
             _this._addLine('import ' + template.viewModelType + ' = require(\'' + template.viewModelType + '\');');
         }
@@ -38,27 +34,41 @@ var TypeScriptGenerator = (function (_super) {
             _this._addLine('View.loadStyles(' + safeName + '.styles);');
         }
 
-        _this._addLine();
+        _this._addClass(template);
 
-        _this._addLine('class ' + template.name + ' extends View {');
-        _this._addProperties(template);
-        _this._addLine();
-
-        _this._addConstructor(template);
-        _this._addOnRenderHtml(template, interfaceName);
-
-        _this._addLine('}');
         _this._addLine();
         _this._addLine('export = ' + template.name + ';');
 
         return _this.output;
     };
 
+    TypeScriptGenerator.prototype._addClass = function (template) {
+        for (var i = 0; i < template.subTemplates.length; i++) {
+            this._addClass(template.subTemplates[i]);
+        }
+
+        this._addLine();
+        this._addLine('class ' + template.name + ' extends ' + template.baseViewType + ' {');
+        this._addProperties(template);
+        this._addOnInitialize(template);
+        this._addOnRenderHtml(template);
+        this._addAnnotations(template);
+        this._addLine('}');
+    };
+
     TypeScriptGenerator.prototype._addChildViewImports = function (template) {
         var uniqueControlTypes = {};
 
+        uniqueControlTypes[template.baseViewType] = template;
+
         for (var memberName in template.childViews) {
-            uniqueControlTypes[template.childViews[memberName].type] = template.childViews[memberName];
+            var childViewDefinition = template.childViews[memberName];
+
+            if (childViewDefinition.shouldImport) {
+                uniqueControlTypes[childViewDefinition.type] = childViewDefinition;
+            }
+
+            uniqueControlTypes[childViewDefinition.baseType] = childViewDefinition;
         }
 
         for (var typeName in uniqueControlTypes) {
@@ -66,45 +76,85 @@ var TypeScriptGenerator = (function (_super) {
         }
     };
 
-    TypeScriptGenerator.prototype._addProperties = function (template) {
-        for (var memberName in template.childViews) {
-            this._addLine('public ' + memberName + ': ' + template.childViews[memberName].type + ';', 1);
+    TypeScriptGenerator.prototype._addOnInitialize = function (template) {
+        var _this = this;
+        var _hasChildViews = false;
+        var memberName;
+
+        for (memberName in template.childViews) {
+            if (template.childViews[memberName].data) {
+                _hasChildViews = true;
+                break;
+            }
         }
 
-        // Add annotations
-        this._addAnnotations(template);
+        if (_hasChildViews) {
+            _this._addLine();
+            _this._addLine('onInitialize() {', 1);
+
+            for (var memberName in template.childViews) {
+                var childViewDefinition = template.childViews[memberName];
+
+                if (childViewDefinition.data) {
+                    this._addLine('this.' + memberName + '.setData(' + childViewDefinition.data + ');', 2);
+                }
+            }
+
+            _this._addLine('}', 1);
+        }
     };
 
-    TypeScriptGenerator.prototype._addConstructor = function (template) {
-        var _this = this;
+    TypeScriptGenerator.prototype._addProperties = function (template) {
+        this._addLine('viewName = \'' + template.name + '\';', 1);
 
-        _this._addLine('constructor(data?: any) {', 1);
-        _this._addLine('super(data);', 2);
-        _this._addLine();
-        _this._addLine('this.viewName = \'' + template.name + '\';', 2);
-        _this._addLine('this.baseClass = \'c-\' + this.viewName + (this.baseClass ? \' \': \'\');', 2);
+        if (template.options) {
+            var optionsBag = eval('(' + template.options + ')');
+            for (var optionName in optionsBag) {
+                this._addLine(optionName + ' = ' + optionsBag[optionName] + ';', 1);
+            }
+        }
 
         if (template.viewModelType) {
-            _this._addLine('this.viewModelType = ' + template.viewModelType + ';', 2);
+            this._addLine('viewModelType = ' + template.viewModelType + ';', 1);
         }
 
         for (var memberName in template.childViews) {
-            var childView = template.childViews[memberName];
+            var childViewDefinition = template.childViews[memberName];
 
-            this._addLine('this.addChild(this.' + memberName + ' = new ' + childView.type + '(' + childView.data + '));', 2);
+            this._addLine('private ' + memberName + ': ' + childViewDefinition.type + ' = <' + childViewDefinition.type + '>this.addChild(new ' + childViewDefinition.type + '());', 1);
         }
-
-        _this._addLine('}', 1);
     };
 
-    TypeScriptGenerator.prototype._addOnRenderHtml = function (template, interfaceName) {
+    /*
+    private _addConstructor(template: CompiledViewTemplate) {
+    var _this = this;
+    
+    _this._addLine('constructor(data?: any) {', 1);
+    _this._addLine('super(data);', 2);
+    _this._addLine();
+    _this._addLine('this.baseClass = \'c-\' + this.viewName + (this.baseClass ? \' \': \'\');', 2);
+    
+    if (template.viewModelType) {
+    _this._addLine('this.viewModelType = ' + template.viewModelType + ';', 2);
+    }
+    
+    for (var memberName in template.childViews) {
+    var childView = template.childViews[memberName];
+    
+    this._addLine('this.addChild(this.' + memberName + ' = new ' + childView.type + '(' + childView.data + '));', 2);
+    }
+    
+    _this._addLine('}', 1);
+    }
+    */
+    TypeScriptGenerator.prototype._addOnRenderHtml = function (template) {
         var _this = this;
 
         _this._addLine();
-        _this._addLine('public onRenderHtml(viewModel: ' + interfaceName + '): string {', 1);
+        _this._addLine('onRenderHtml(): string {', 1);
         _this._addLine('return \'\' +', 2);
 
-        this._addRenderLine(template.documentElement, 3);
+        this._addChildNodes(template.documentElement, 3);
 
         _this._addLine('\'\';', 3);
         _this._addLine('}', 1);
@@ -113,21 +163,23 @@ var TypeScriptGenerator = (function (_super) {
     TypeScriptGenerator.prototype._addRenderLine = function (element, indent) {
         var _this = this;
 
-        if (element.tagName === 'js-control') {
+        if (element.tagName === 'js-view') {
             _this._addLine('this.' + element.getAttribute('js-name') + '.renderHtml() +', indent);
+        } else if (element.tagName === 'js-items') {
+            _this._addLine('this.renderItems() + ', indent);
         } else {
-            var isRoot = element.tagName === 'js-template';
             var nodeType = element.nodeType;
-            var tagName = (isRoot) ? "' + this.baseTag + '" : element.tagName;
+            var tagName = element.tagName;
             var annotation = element['annotation'];
-            var hasContent = (element.childNodes.length > 0) || (annotation && (annotation.html || annotation.text));
+            var hasContent = (element.childNodes.length > 0) || (annotation && (annotation.html || annotation.text || annotation.repeat));
             var closingTag = hasContent ? ">' +" : "></" + tagName + ">' +";
 
-            _this._addLine("'<" + tagName + this._getIdAttribute(element) + this._getCreationMethod(element, 'genStyle', 'css', 'style', isRoot) + this._getCreationMethod(element, 'genClass', 'className', 'class', isRoot) + this._getCreationMethod(element, 'genAttr', 'attr') + this._getRemainingAttributes(element) + closingTag, indent);
+            _this._addLine("'<" + tagName + this._getIdAttribute(element) + this._getCreationMethod(element, 'genStyle', 'css', 'style') + this._getCreationMethod(element, 'genClass', 'className', 'class') + this._getCreationMethod(element, 'genAttr', 'attr') + this._getRemainingAttributes(element) + closingTag, indent);
 
             if (hasContent) {
-                _this._addElementContent(element, indent + 1);
-                _this._addChildNodes(element, indent + 1);
+                if (_this._addElementContent(element, indent + 1)) {
+                    _this._addChildNodes(element, indent + 1);
+                }
                 _this._addLine("'</" + tagName + ">' +", indent);
             }
         }
@@ -135,16 +187,19 @@ var TypeScriptGenerator = (function (_super) {
 
     TypeScriptGenerator.prototype._addElementContent = function (element, indent) {
         var annotation = element['annotation'];
+        var shouldRenderChildNodes = true;
 
         if (annotation) {
             if (annotation.text) {
-                this._addLine('Encode.toJS(viewModel.' + annotation.text + ') +', indent);
+                this._addLine('this.genText(\'' + annotation.text + '\') +', indent);
             }
 
             if (annotation.html) {
-                this._addLine('Encode.toSafe(viewModel.' + annotation.html + ') +', indent);
+                this._addLine('this.genHtml(\'' + annotation.text + '\') +', indent);
             }
         }
+
+        return shouldRenderChildNodes;
     };
 
     TypeScriptGenerator.prototype._addChildNodes = function (element, indent) {
@@ -172,7 +227,7 @@ var TypeScriptGenerator = (function (_super) {
         }
         if (annotationBlocks.length) {
             _this._addLine();
-            _this._addLine('public _bindings = [', 1);
+            _this._addLine('_bindings = [', 1);
 
             annotationBlocks.join(',\n').split('\n').forEach(function (block) {
                 _this._addLine(block, 2);
@@ -193,17 +248,12 @@ var TypeScriptGenerator = (function (_super) {
         return idAttribute;
     };
 
-    TypeScriptGenerator.prototype._getCreationMethod = function (element, createMethodName, annotationObjectName, attributeName, injectBaseProperty) {
+    TypeScriptGenerator.prototype._getCreationMethod = function (element, createMethodName, annotationObjectName, attributeName) {
         var annotation = element['annotation'];
         var annotationCollection = annotation ? annotation[annotationObjectName] : null;
         var methodCall = '';
         var valuesToAdd = [];
         var existingValue = element.getAttribute(attributeName) || '';
-
-        // Root node needs to inject no matter what.
-        if (injectBaseProperty && !annotationCollection) {
-            annotationCollection = {};
-        }
 
         if (annotationCollection) {
             // Remove attribute because we're going to use a creation method.
@@ -211,14 +261,7 @@ var TypeScriptGenerator = (function (_super) {
                 element.removeAttribute(attributeName);
             }
 
-            if (injectBaseProperty) {
-                if (existingValue) {
-                    existingValue = "'" + existingValue + " ' + ";
-                }
-                existingValue += 'this.base' + this._toTitleCase(attributeName);
-            } else {
-                existingValue = "'" + existingValue + "'";
-            }
+            existingValue = "'" + existingValue + "'";
 
             for (var valueName in annotationCollection) {
                 valuesToAdd.push("'" + valueName + "'");

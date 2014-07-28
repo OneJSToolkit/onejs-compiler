@@ -14,5 +14,5 @@ if (process.argv.length < 3) {
     var interfaceGenerator = new TypeScriptViewModelGenerator();
 
     fs.writeFileSync(fileName + '.ts', tsGenerator.generate(fileContent));
-    fs.writeFileSync('I' + fileName + 'Model.ts', interfaceGenerator.generate(fileContent));
+    fs.writeFileSync('I' + tsGenerator.template.name + 'Model.ts', interfaceGenerator.generate(fileContent));
 }
