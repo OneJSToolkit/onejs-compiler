@@ -42,7 +42,7 @@ class TypeScriptGenerator extends BaseGenerator {
         this._addLine();
         this._addLine('class ' + template.name + ' extends ' + template.baseViewType + ' {');
         this._addProperties(template);
-        this._addOnInitialize(template);
+        this._addOnViewModelChanged(template);
         this._addOnRenderHtml(template);
         this._addAnnotations(template);
         this._addLine('}');
@@ -53,22 +53,29 @@ class TypeScriptGenerator extends BaseGenerator {
 
         uniqueControlTypes[template.baseViewType] = template;
 
-        for (var memberName in template.childViews) {
-            var childViewDefinition = template.childViews[memberName];
+        function findImports(currentTemplate) {
+            for (var memberName in currentTemplate.childViews) {
+                var childViewDefinition = currentTemplate.childViews[memberName];
 
-            if (childViewDefinition.shouldImport) {
-                uniqueControlTypes[childViewDefinition.type] = childViewDefinition;
+                if (childViewDefinition.shouldImport) {
+                    uniqueControlTypes[childViewDefinition.type] = childViewDefinition;
+                }
+
+                uniqueControlTypes[childViewDefinition.baseType] = childViewDefinition;
             }
-
-            uniqueControlTypes[childViewDefinition.baseType] = childViewDefinition;
+            for (var i = 0; i < currentTemplate.subTemplates.length; i++) {
+                findImports(currentTemplate.subTemplates[i]);
+            }
         }
+
+        findImports(template);
 
         for (var typeName in uniqueControlTypes) {
             this._addLine('import ' + typeName + ' = require(\'' + typeName + '\');');
         }
     }
 
-    private _addOnInitialize(template) {
+    private _addOnViewModelChanged(template) {
         var _this = this;
         var _hasChildViews = false;
         var memberName;
@@ -82,13 +89,33 @@ class TypeScriptGenerator extends BaseGenerator {
 
         if (_hasChildViews) {
             _this._addLine();
-            _this._addLine('onInitialize() {', 1);
+            _this._addLine('onViewModelChanged() {', 1);
 
             for (var memberName in template.childViews) {
                 var childViewDefinition = template.childViews[memberName];
 
                 if (childViewDefinition.data) {
-                    this._addLine('this.' + memberName + '.setData(' + childViewDefinition.data + ');', 2);
+                    var data = childViewDefinition.data;
+
+                    if (data.indexOf('{') == 0) {
+                        data = data.substr(1, data.length - 2);
+                        var dataList = data.split(',');
+                        var isFirst = true;
+
+                        data = '{';
+                        for (var listIndex = 0; listIndex < dataList.length; listIndex++) {
+                            var parts = dataList[listIndex].trim().split(/[\s:]+/);
+
+                            data += (isFirst ? '' : ',') + ' ' + parts[0].trim() + ': this.getValue(\'' + parts[1].trim() + '\')';
+                            isFirst = false;
+                        }
+                        data += ' }';
+
+                    } else {
+                        data = 'this.getValue(\'' + data + '\')';
+                    }
+
+                    this._addLine('this.' + memberName + '.setData(' + data + ');', 2);
                 }
             }
 
@@ -102,7 +129,7 @@ class TypeScriptGenerator extends BaseGenerator {
         if (template.options) {
             var optionsBag = eval('(' + template.options + ')');
             for (var optionName in optionsBag) {
-                this._addLine(optionName + ' = ' + optionsBag[optionName] +';', 1);
+                this._addLine(optionName + ' = ' + optionsBag[optionName] + ';', 1);
             }
         }
 

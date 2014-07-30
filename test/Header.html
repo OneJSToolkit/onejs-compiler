@@ -1,11 +1,13 @@
-<js-view js-type="Header" js-model="HeaderModel" js-css="Header.css">
+<js-view js-type="Header1" js-model="HeaderModel" js-css="Header.css">
     <div class="c-Header">
-        <div class="logoImage"></div>
-        <div class="logo" js-bind="text:logoText"></div>
-        <ul class="commands" js-repeat="command in commands">
-            <li js-bind="className.selected:$match(name, $parent.selectedName)" js-userAction="click:$send(name, $parent.selectedName),click:$another()">
-                <a js-bind="href:url, text:name"></a>
-            </li>
-        </ul>
+
+        <div class="commandBar" js-repeat="command in commands">
+            <a class="command" href="#">
+                <js-view js-name="iconImage" js-type="ImageSprite" js-data="image" />
+                <span class="text" js-bind="text:text"></span>
+                <js-view js-name="chevronImage" js-type="ImageSprite" js-data="chevron" />
+            </a>
+        </div>
+
     </div>
 </js-view>

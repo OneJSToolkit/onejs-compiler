@@ -1,55 +1,51 @@
 import HeaderModel = require('HeaderModel');
 import View = require('View');
 import Repeater = require('Repeater');
+import ImageSprite = require('ImageSprite');
 import Headercss = require('Header.css');
 
 View.loadStyles(Headercss.styles);
 
-class HeaderBlock0Item extends View {
-    viewName = 'HeaderBlock0Item';
+class Header1Block0Item extends View {
+    viewName = 'Header1Block0Item';
+    private iconImage: ImageSprite = <ImageSprite>this.addChild(new ImageSprite());
+    private chevronImage: ImageSprite = <ImageSprite>this.addChild(new ImageSprite());
+
+    onViewModelChanged() {
+        this.iconImage.setData(this.getValue('image'));
+        this.chevronImage.setData(this.getValue('chevron'));
+    }
 
     onRenderHtml(): string {
         return '' +
-            '<li id="' + this.id + '_0" ' + this.genClass('', ['selected','$match(name, $parent.selectedName)']) + '>' +
-                '<a id="' + this.id + '_1" ' + this.genAttr('', ['href','url']) + '>' +
-                    this.genText('name') +
-                '</a>' +
-            '</li>' +
+            '<a class="command" href="#">' +
+                this.iconImage.renderHtml() +
+                '<span id="' + this.id + '_0" class="text">' +
+                    this.genText('text') +
+                '</span>' +
+                this.chevronImage.renderHtml() +
+            '</a>' +
             '';
     }
 
     _bindings = [
         {
             "id": "0",
-            "className": {
-                "selected": "$match(name, $parent.selectedName)"
-            },
-            "events": {
-                "click": [
-                    "$send(name, $parent.selectedName)",
-                    "$another"
-                ]
-            }
-        },
-        {
-            "id": "1",
-            "attr": {
-                "href": "url"
-            },
-            "text": "name"
+            "text": "text"
         }
     ];
 }
 
-class HeaderBlock0 extends Repeater {
-    viewName = 'HeaderBlock0';
-    childViewType = HeaderBlock0Item;
+class Header1Block0 extends Repeater {
+    viewName = 'Header1Block0';
+    childViewType = Header1Block0Item;
+    itemName = "command";
 
     onRenderHtml(): string {
         return '' +
-            '<ul id="' + this.id + '_0" class="commands">' +
+            '<div id="' + this.id + '_0" class="commandBar">' +
                 this.renderItems() + 
-            '</ul>' +
+            '</div>' +
             '';
     }
 
@@ -61,33 +57,22 @@ class HeaderBlock0 extends Repeater {
     ];
 }
 
-class Header extends View {
-    viewName = 'Header';
+class Header1 extends View {
+    viewName = 'Header1';
     viewModelType = HeaderModel;
-    private headerBlock0: HeaderBlock0 = <HeaderBlock0>this.addChild(new HeaderBlock0());
+    private header1Block0: Header1Block0 = <Header1Block0>this.addChild(new Header1Block0());
 
-    onInitialize() {
-        this.headerBlock0.setData({ items: this.getValue('commands') });
+    onViewModelChanged() {
+        this.header1Block0.setData({ items: this.getValue('commands') });
     }
 
     onRenderHtml(): string {
         return '' +
             '<div class="c-Header">' +
-                '<div class="logoImage"></div>' +
-                '<div id="' + this.id + '_0" class="logo">' +
-                    this.genText('logoText') +
-                '</div>' +
-                this.headerBlock0.renderHtml() +
+                this.header1Block0.renderHtml() +
             '</div>' +
             '';
     }
-
-    _bindings = [
-        {
-            "id": "0",
-            "text": "logoText"
-        }
-    ];
 }
 
-export = Header;
+export = Header1;
