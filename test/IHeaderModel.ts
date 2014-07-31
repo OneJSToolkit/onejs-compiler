@@ -1,4 +1,0 @@
-interface IHeaderModel {
-}
-
-export = IHeaderModel;
