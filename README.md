@@ -4,17 +4,15 @@
 
 ## Install
 
-If you use grunt:
-
-$ npm install --save-dev grunt-onejs-compiler
-
-See [grunt-onejs-compiler](http://github.com/dzearing/grunt-onejs-compiler)
-
 If you use gulp:
 
-$ npm install --save-dev gulp-onejs-compiler
+$ npm i --save-dev gulp-onejs-compiler
 
 See [gulp-onejs-compiler](http://github.com/dzearing/gulp-onejs-compiler)
+
+If you use grunt:
+
+(Plugin pending)
 
 ## License
 
