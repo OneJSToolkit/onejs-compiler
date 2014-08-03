@@ -6,7 +6,6 @@ var __extends = this.__extends || function (d, b) {
 };
 var BaseGenerator = require('./BaseGenerator');
 
-//import Encode = require('onejs/src/Encode');
 /// <summary>
 /// Generates a TypeScript view class from a OneJS template.
 /// </summary>
@@ -59,7 +58,7 @@ var TypeScriptGenerator = (function (_super) {
     };
 
     TypeScriptGenerator.prototype._addChildViewImports = function (template) {
-        var uniqueControlTypes = {};
+        var uniqueControlTypes = { 'View': {} };
 
         uniqueControlTypes[template.baseViewType] = template;
 
@@ -178,7 +177,7 @@ var TypeScriptGenerator = (function (_super) {
         for (var memberName in template.childViews) {
             var childViewDefinition = template.childViews[memberName];
 
-            this._addLine('private ' + memberName + ': ' + childViewDefinition.type + ' = <' + childViewDefinition.type + '>this.addChild(new ' + childViewDefinition.type + '());', 1);
+            this._addLine(memberName + ' = <any>this.addChild(new ' + childViewDefinition.type + '());', 1);
         }
     };
 
@@ -269,7 +268,7 @@ var TypeScriptGenerator = (function (_super) {
                 var text = childNode.textContent.trim();
                 if (text) {
                     //this._addLine("'" + Encode.toHtml(text) + "' +", indent);
-                    this._addLine("'" + text + "' +", indent);
+                    this._addLine("'" + _toHtml(text) + "' +", indent);
                 }
             }
         }
@@ -349,5 +348,9 @@ var TypeScriptGenerator = (function (_super) {
     };
     return TypeScriptGenerator;
 })(BaseGenerator);
+
+function _toHtml(str) {
+    return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
 module.exports = TypeScriptGenerator;

@@ -9,18 +9,18 @@
 
             <div class="linkArea" js-repeat="group in linkGroups">
                 <div class="linkGroup" js-repeat="link in group.links">
-                    <a class="link" js-bind="className.isSelected:$viewModel.isSelected,href:link.url,text:link.text"></a>
+                    <a class="link" js-bind="className.isSelected:$parent.isSelected,href:link.url,text:link.text"></a>
                     <div js-repeat="link in link.links">
                         <a class="sub link" js-bind="className.isSelected:$parent.isSelected,href:link.url,text:link.text"></a>
                     </div>
                 </div>
             </div>
 
-            <div class="c-QuotaPane">
+            <div class="c-QuotaPane" >
                 <div class="quota">37.4GB available</div>
-                <a class="link" href="#">Recycle bin</a>
-                <a class="link" href="#">Manage storage</a>
-                <a class="link" href="#">Get SkyDrive apps</a>
+                <a class="link" href="#" js-userAction="click:$toggle(foo)">Recycle bin</a>
+                <a class="link" href="#" js-bind="className.isRed:foo">Manage storage</a>
+                <a class="link" href="#" js-bind="className.isRed:foo">Get SkyDrive apps</a>
             </div>
 
         </div>

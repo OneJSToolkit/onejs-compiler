@@ -55,7 +55,7 @@ class LeftNavBlock2 extends Repeater {
 
 class LeftNavBlock1Item extends View {
     viewName = 'LeftNavBlock1Item';
-    private leftNavBlock2: LeftNavBlock2 = <LeftNavBlock2>this.addChild(new LeftNavBlock2());
+    leftNavBlock2 = <any>this.addChild(new LeftNavBlock2());
 
     onInitialize() {
         this.leftNavBlock2.owner = this.owner;
@@ -67,7 +67,7 @@ class LeftNavBlock1Item extends View {
 
     onRenderHtml(): string {
         return '' +
-            '<a id="' + this.id + '_0" ' + this._genClass('link', ['isSelected','$viewModel.isSelected']) + ' ' + this._genAttr('', ['href','link.url']) + '>' +
+            '<a id="' + this.id + '_0" ' + this._genClass('link', ['isSelected','$parent.isSelected']) + ' ' + this._genAttr('', ['href','link.url']) + '>' +
                 this._genText('link.text') +
             '</a>' +
             this.leftNavBlock2.renderHtml() +
@@ -78,7 +78,7 @@ class LeftNavBlock1Item extends View {
         {
             "id": "0",
             "className": {
-                "isSelected": "$viewModel.isSelected"
+                "isSelected": "$parent.isSelected"
             },
             "attr": {
                 "href": "link.url"
@@ -111,7 +111,7 @@ class LeftNavBlock1 extends Repeater {
 
 class LeftNavBlock0Item extends View {
     viewName = 'LeftNavBlock0Item';
-    private leftNavBlock1: LeftNavBlock1 = <LeftNavBlock1>this.addChild(new LeftNavBlock1());
+    leftNavBlock1 = <any>this.addChild(new LeftNavBlock1());
 
     onInitialize() {
         this.leftNavBlock1.owner = this.owner;
@@ -152,8 +152,8 @@ class LeftNavBlock0 extends Repeater {
 class LeftNav extends View {
     viewName = 'LeftNav';
     viewModelType = LeftNavModel;
-    private searchIcon: ImageSprite = <ImageSprite>this.addChild(new ImageSprite());
-    private leftNavBlock0: LeftNavBlock0 = <LeftNavBlock0>this.addChild(new LeftNavBlock0());
+    searchIcon = <any>this.addChild(new ImageSprite());
+    leftNavBlock0 = <any>this.addChild(new LeftNavBlock0());
 
     onInitialize() {
         this.leftNavBlock0.owner = this;
@@ -179,13 +179,13 @@ class LeftNav extends View {
                         '<div class="quota">' +
                             '37.4GB available' +
                         '</div>' +
-                        '<a class="link" href="#">' +
+                        '<a id="' + this.id + '_1" class="link" href="#">' +
                             'Recycle bin' +
                         '</a>' +
-                        '<a class="link" href="#">' +
+                        '<a id="' + this.id + '_2" ' + this._genClass('link', ['isRed','foo']) + ' href="#">' +
                             'Manage storage' +
                         '</a>' +
-                        '<a class="link" href="#">' +
+                        '<a id="' + this.id + '_3" ' + this._genClass('link', ['isRed','foo']) + ' href="#">' +
                             'Get SkyDrive apps' +
                         '</a>' +
                     '</div>' +
@@ -198,6 +198,26 @@ class LeftNav extends View {
         {
             "id": "0",
             "text": "searchText"
+        },
+        {
+            "id": "1",
+            "events": {
+                "click": [
+                    "$toggle(foo)"
+                ]
+            }
+        },
+        {
+            "id": "2",
+            "className": {
+                "isRed": "foo"
+            }
+        },
+        {
+            "id": "3",
+            "className": {
+                "isRed": "foo"
+            }
         }
     ];
 }

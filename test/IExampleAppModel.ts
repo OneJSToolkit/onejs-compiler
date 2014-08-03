@@ -1,0 +1,4 @@
+interface IExampleAppModel {
+}
+
+export = IExampleAppModel;
