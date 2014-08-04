@@ -1,8 +1,8 @@
 import LeftNavModel = require('LeftNavModel');
-import DomUtils = require('DomUtils');
 import View = require('View');
 import ImageSprite = require('ImageSprite');
 import Repeater = require('Repeater');
+import DomUtils = require('DomUtils');
 import LeftNavcss = require('LeftNav.css');
 
 DomUtils.loadStyles(LeftNavcss.styles);

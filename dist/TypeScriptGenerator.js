@@ -22,12 +22,13 @@ var TypeScriptGenerator = (function (_super) {
         if (template.viewModelType) {
             _this._addLine('import ' + template.viewModelType + ' = require(\'' + template.viewModelType + '\');');
         }
-        _this._addLine('import DomUtils = require(\'DomUtils\');');
 
         _this._addChildViewImports(template);
 
         if (template.cssInclude) {
             var safeName = template.cssInclude.replace('.', '');
+
+            _this._addLine('import DomUtils = require(\'DomUtils\');');
             _this._addLine('import ' + safeName + ' = require(\'' + template.cssInclude + '\');');
 
             _this._addLine();
