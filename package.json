@@ -1,6 +1,6 @@
 {
   "name": "onejs-compiler",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Compiler onejs html templates into javascript.",
   "license": "MIT",
   "repository": "dzearing/onejs-compiler",
