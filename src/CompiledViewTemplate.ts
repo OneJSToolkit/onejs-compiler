@@ -17,6 +17,7 @@ class CompiledViewTemplate {
     public childViews: any;
     public properties: any;
     public subTemplates: CompiledViewTemplate[];
+    public requireList: string[];
     public cssInclude: string;
     public events: string[];
     public errors: string[];
@@ -45,6 +46,10 @@ class CompiledViewTemplate {
         this.viewModelType = element.getAttribute('js-model') || '';
         this.options = element.getAttribute('js-options') || '';
         this.cssInclude = (element.getAttribute('js-css') || '');
+
+        var requires = element.getAttribute('js-require');
+
+        this.requireList = requires ? requires.split(/[ ,]+/) : [];
 
         // If name has periods in it, just use the last part for now.
         if (this.name.indexOf('.') > -1) {
@@ -99,6 +104,7 @@ class CompiledViewTemplate {
         this.annotations = {};
         this.childViews = {};
         this.properties = {};
+        this.requireList = [];
         this.cssInclude = '';
         this.subTemplates = [];
         this.events = [];

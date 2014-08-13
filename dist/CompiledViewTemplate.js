@@ -30,6 +30,10 @@ var CompiledViewTemplate = (function () {
         this.options = element.getAttribute('js-options') || '';
         this.cssInclude = (element.getAttribute('js-css') || '');
 
+        var requires = element.getAttribute('js-require');
+
+        this.requireList = requires ? requires.split(/[ ,]+/) : [];
+
         // If name has periods in it, just use the last part for now.
         if (this.name.indexOf('.') > -1) {
             var nameParts = this.name.split('.');
@@ -78,6 +82,7 @@ var CompiledViewTemplate = (function () {
         this.annotations = {};
         this.childViews = {};
         this.properties = {};
+        this.requireList = [];
         this.cssInclude = '';
         this.subTemplates = [];
         this.events = [];

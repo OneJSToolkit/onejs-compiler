@@ -2,10 +2,8 @@ import LeftNavModel = require('LeftNavModel');
 import View = require('View');
 import ImageSprite = require('ImageSprite');
 import Repeater = require('Repeater');
-import DomUtils = require('DomUtils');
 import LeftNavcss = require('LeftNav.css');
-
-DomUtils.loadStyles(LeftNavcss.styles);
+LeftNavcss;
 
 class LeftNavBlock2Item extends View {
     viewName = 'LeftNavBlock2Item';
@@ -58,10 +56,12 @@ class LeftNavBlock1Item extends View {
     leftNavBlock2 = <any>this.addChild(new LeftNavBlock2());
 
     onInitialize() {
+        super.onInitialize();
         this.leftNavBlock2.owner = this.owner;
     }
 
     onViewModelChanged() {
+        super.onViewModelChanged();
         this.leftNavBlock2.setData({ items: this.getValue('link.links') });
     }
 
@@ -114,10 +114,12 @@ class LeftNavBlock0Item extends View {
     leftNavBlock1 = <any>this.addChild(new LeftNavBlock1());
 
     onInitialize() {
+        super.onInitialize();
         this.leftNavBlock1.owner = this.owner;
     }
 
     onViewModelChanged() {
+        super.onViewModelChanged();
         this.leftNavBlock1.setData({ items: this.getValue('group.links') });
     }
 
@@ -156,10 +158,12 @@ class LeftNav extends View {
     leftNavBlock0 = <any>this.addChild(new LeftNavBlock0());
 
     onInitialize() {
+        super.onInitialize();
         this.leftNavBlock0.owner = this;
     }
 
     onViewModelChanged() {
+        super.onViewModelChanged();
         this.searchIcon.setData(this.getValue('searchIcon'));
         this.leftNavBlock0.setData({ items: this.getValue('linkGroups') });
     }
