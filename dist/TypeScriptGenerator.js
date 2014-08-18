@@ -358,7 +358,7 @@ var TypeScriptGenerator = (function (_super) {
 
         for (var i = 0; i < element.attributes.length; i++) {
             var attribute = element.attributes[i];
-            attributeContent.push(attribute.name + '="' + attribute.value + '"');
+            attributeContent.push(attribute.name + '="' + _toHtml(attribute.value) + '"');
         }
 
         return attributeContent.length ? (' ' + attributeContent.join(' ')) : '';
