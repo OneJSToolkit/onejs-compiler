@@ -64,8 +64,9 @@ var CompiledViewTemplate = (function () {
                     this._parseElement(childElement);
                     break;
                 case element.TEXT_NODE:
-                    var value = element.textContent.trim();
+                    var value = childElement.textContent.trim();
 
+                    // Remove dead text.
                     if (!value) {
                         element.removeChild(childElement);
                         i--;
