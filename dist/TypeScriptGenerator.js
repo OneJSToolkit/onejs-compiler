@@ -53,7 +53,7 @@ var TypeScriptGenerator = (function (_super) {
         this._addProperties(template);
         this._addOnInitialize(template);
         this._addOnViewModelChanged(template);
-        this._addOnRenderElement(template);
+        this._addOnRender(template);
 
         //this._addOnRenderHtml(template);
         this._addAnnotations(template);
@@ -165,7 +165,14 @@ var TypeScriptGenerator = (function (_super) {
                         for (var listIndex = 0; listIndex < dataList.length; listIndex++) {
                             var parts = dataList[listIndex].trim().split(/[\s:]+/);
 
-                            data += (isFirst ? '' : ',') + ' ' + parts[0].trim() + ': this.getValue(\'' + parts[1].trim() + '\')';
+                            data += (isFirst ? '' : ',') + ' ' + parts[0].trim() + ': ';
+
+                            if (parts[1].trim()[0] === '\'') {
+                                data += parts[1].trim();
+                            } else {
+                                data += 'this.getValue(\'' + parts[1].trim() + '\')';
+                            }
+
                             isFirst = false;
                         }
                         data += ' }';
@@ -224,57 +231,62 @@ var TypeScriptGenerator = (function (_super) {
     _this._addLine('}', 1);
     }
     */
-    TypeScriptGenerator.prototype._addOnRenderElement = function (template) {
+    TypeScriptGenerator.prototype._addOnRender = function (template) {
         var _this = this;
 
         _this._addLine();
-        _this._addLine('onRenderElement(): HTMLElement {', 1);
+        _this._addLine('onRender(): HTMLElement {', 1);
         _this._addLine('var _this = this;', 2);
         _this._addLine('var bindings = _this._bindings;', 2);
         _this._addLine();
 
-        this._addChildElements(template.documentElement, 2);
+        if (template.documentElement.tagName === "js-view") {
+            this._addElement(template.documentElement.firstChild, template.documentElement, 0, 2, true);
+        } else {
+            this._addElement(template.documentElement, null, 0, 2, true);
+        }
 
         _this._addLine('}', 1);
     };
 
-    TypeScriptGenerator.prototype._addChildElements = function (element, indent) {
-        var isRoot = element.tagName === 'js-view';
-        var leadingAssignment = isRoot ? 'return (_this.element = ' : '';
-
+    TypeScriptGenerator.prototype._addChildElements = function (element, indent, isRoot) {
         for (var i = 0; i < element.childNodes.length; i++) {
-            var childNode = element.childNodes[i];
-            var annotations = childNode['annotation'];
-            var bindings = annotations ? ('bindings[' + annotations.id + ']') : null;
-            var trailingComma = (i == element.childNodes.length - 1) ? (isRoot ? ');' : '') : ',';
+            this._addElement(element.childNodes[i], element, i, indent, isRoot);
+        }
+    };
 
-            if (childNode.tagName === 'js-view') {
-                this._addLine(leadingAssignment + '_this.' + childNode.getAttribute('js-name') + '.renderElement()' + trailingComma, indent);
-            } else if (childNode.nodeType === element.ELEMENT_NODE) {
-                var attributes = [];
-                for (var attrIndex = 0; attrIndex < childNode.attributes.length; attrIndex++) {
-                    attributes.push(childNode.attributes[attrIndex].name);
-                    attributes.push(childNode.attributes[attrIndex].value);
-                }
+    TypeScriptGenerator.prototype._addElement = function (childNode, parentNode, index, indent, isRoot) {
+        var leadingAssignment = isRoot ? 'return (_this.element = ' : '';
+        var annotations = childNode['annotation'];
+        var bindings = annotations ? ('bindings[' + annotations.id + ']') : null;
+        var trailingComma = (!parentNode || index == parentNode.childNodes.length - 1) ? (isRoot ? ');' : '') : ',';
 
-                var hasChildren = childNode.childNodes.length > 0;
-                var childSuffix = hasChildren ? ', [' : (')' + trailingComma);
-                var renderChildren = hasChildren;
-
-                if (hasChildren && childNode.childNodes[0].tagName == 'js-items') {
-                    renderChildren = false;
-                    childSuffix = ', this.getChildElements())' + trailingComma;
-                }
-
-                this._addLine(leadingAssignment + "_this._ce(\"" + childNode.tagName + "\", " + JSON.stringify(attributes) + (bindings || hasChildren ? (", " + bindings) : '') + childSuffix, indent);
-
-                if (renderChildren) {
-                    this._addChildElements(childNode, indent + 1);
-                    this._addLine("])" + trailingComma, indent);
-                }
-            } else if (childNode.nodeType === element.TEXT_NODE) {
-                this._addLine("_this._ct(" + JSON.stringify(childNode.textContent) + ")" + trailingComma, indent);
+        if (childNode.tagName === 'js-view') {
+            this._addLine(leadingAssignment + '_this.' + childNode.getAttribute('js-name') + '.render()' + trailingComma, indent);
+        } else if (childNode.nodeType === childNode.ELEMENT_NODE) {
+            var attributes = [];
+            for (var attrIndex = 0; attrIndex < childNode.attributes.length; attrIndex++) {
+                attributes.push(childNode.attributes[attrIndex].name);
+                attributes.push(childNode.attributes[attrIndex].value);
             }
+
+            var hasChildren = childNode.childNodes.length > 0;
+            var childSuffix = hasChildren ? ', [' : (')' + trailingComma);
+            var renderChildren = hasChildren;
+
+            if (hasChildren && childNode.childNodes[0].tagName == 'js-items') {
+                renderChildren = false;
+                childSuffix = ', this.getChildElements())' + trailingComma;
+            }
+
+            this._addLine(leadingAssignment + "_this._ce(\"" + childNode.tagName + "\", " + JSON.stringify(attributes) + (bindings || hasChildren ? (", " + bindings) : '') + childSuffix, indent);
+
+            if (renderChildren) {
+                this._addChildElements(childNode, indent + 1);
+                this._addLine("])" + trailingComma, indent);
+            }
+        } else if (childNode.nodeType === childNode.TEXT_NODE) {
+            this._addLine("_this._ct(" + JSON.stringify(childNode.textContent) + ")" + trailingComma, indent);
         }
     };
 

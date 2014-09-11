@@ -1,0 +1,26 @@
+<div class="c-LeftNavBar" js-type="LeftNav" js-model="LeftNavModel" js-css="LeftNav.css">
+    
+    <div class="searchBox">
+        <input type="text" js-bind="text:searchText" placeholder="Search"></input>
+        <js-view js-name="searchIcon" js-type="ImageSprite" js-data="searchIcon"></js-view>
+    </div>
+
+    <div class="scrollArea">
+        <div class="linkArea" js-repeat="group in linkGroups">
+            <div class="linkGroup" js-repeat="link in group.links">
+                <div>
+                    <a class="link" js-bind="className.isSelected:$parent.isSelected,href:link.url,text:link.text"></a>
+                    <div js-repeat="link in link.links">
+                        <a class="sub link" js-bind="className.isSelected:$parent.isSelected,href:link.url,text:link.text"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="c-QuotaPane">
+            <div class="quota">37.4GB available</div>
+            <a class="link" href="#">Recycle bin</a>
+            <a class="link" href="#">Manage storage</a>
+            <a class="link" href="#">Get SkyDrive apps</a>
+        </div>
+    </div>
+</div>

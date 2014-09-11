@@ -57,7 +57,20 @@ class CompiledViewTemplate {
             this.name = nameParts[nameParts.length - 1];
         }
 
-        this._parseElementChildren(element);
+        // If root is js-view element, parse children. Else, parse this.
+        if (element.tagName === 'js-view') {
+            this._parseElementChildren(element);
+        }
+        else {
+            this._parseElement(element);
+        }
+
+        element.removeAttribute('js-type');
+        element.removeAttribute('js-baseType');
+        element.removeAttribute('js-model');
+        element.removeAttribute('js-options');
+        element.removeAttribute('js-css');
+        element.removeAttribute('js-require');
     }
 
     private _parseElement(element: HTMLElement) {
@@ -258,9 +271,9 @@ class CompiledViewTemplate {
 
         var childView = this.childViews[name] = {
             name: name,
-            type: element.getAttribute('js-type') || '',
+            type: subTemplate.name || '',
             baseType: subTemplate.baseViewType,
-            options: element.getAttribute('js-options') || '',
+            options: subTemplate.options || '',
             data: element.getAttribute('js-data') || '',
             shouldImport: (element.childNodes.length == 0),
             template: subTemplate

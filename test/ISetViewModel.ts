@@ -1,0 +1,4 @@
+interface ISetViewModel {
+}
+
+export = ISetViewModel;

@@ -1,0 +1,4 @@
+interface IAboutPageModel {
+}
+
+export = IAboutPageModel;

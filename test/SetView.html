@@ -1,0 +1,21 @@
+<div class="od-setview" js-type="SetView" js-model="SetViewModel" js-css="SetView.css" js-bind="className.infoPaneExpanded:isInfoPaneExpanded">
+    
+    <js-view js-name="header" js-type="Header"></js-view>
+    
+    <div class="od-setview-leftnav">
+        <js-view js-name="leftNav" js-type="LeftNav"></js-view>
+    </div>
+
+    <div class="od-setview-content">
+        <js-view js-name="setHeader" js-type="SetHeader"></js-view>    
+        
+        <div class="od-setview-listview">
+            <js-view js-name="listView" js-type="ListView" js-data="{ viewportClass: 'od-setview-listview', items: listItems, layout: currentLayout }"></js-view>
+        </div>
+
+        <div class="od-setview-infopane">
+            <js-view js-name="infoPane" js-type="InfoPane"></js-view>
+        </div>
+    </div>
+
+</div>

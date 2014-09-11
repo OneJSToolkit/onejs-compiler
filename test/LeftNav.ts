@@ -1,6 +1,6 @@
 import LeftNavModel = require('LeftNavModel');
 import View = require('View');
-import  = require('');
+import ImageSprite = require('ImageSprite');
 import Repeater = require('Repeater');
 import DomUtils = require('DomUtils');
 import LeftNavcss = require('LeftNav.css');
@@ -53,7 +53,7 @@ class LeftNavBlock2 extends Repeater {
 
 class LeftNavBlock1Item extends View {
     viewName = 'LeftNavBlock1Item';
-    leftNavBlock2 = <any>this.addChild(new ());
+    leftNavBlock2 = <any>this.addChild(new LeftNavBlock2());
 
     onInitialize() {
         super.onInitialize();
@@ -69,7 +69,10 @@ class LeftNavBlock1Item extends View {
         var _this = this;
         var bindings = _this._bindings;
 
-        return (_this.element = _this._ce("a", ["class","link"], bindings[0]),
+        return (_this.element = _this._ce("div", [], null, [
+            _this._ce("a", ["class","link"], bindings[0]),
+            _this.leftNavBlock2.render()
+        ]));
     }
 
     _bindings = [
@@ -108,7 +111,7 @@ class LeftNavBlock1 extends Repeater {
 
 class LeftNavBlock0Item extends View {
     viewName = 'LeftNavBlock0Item';
-    leftNavBlock1 = <any>this.addChild(new ());
+    leftNavBlock1 = <any>this.addChild(new LeftNavBlock1());
 
     onInitialize() {
         super.onInitialize();
@@ -151,8 +154,8 @@ class LeftNavBlock0 extends Repeater {
 class LeftNav extends View {
     viewName = 'LeftNav';
     viewModelType = LeftNavModel;
-    searchIcon = <any>this.addChild(new ());
-    leftNavBlock0 = <any>this.addChild(new ());
+    searchIcon = <any>this.addChild(new ImageSprite());
+    leftNavBlock0 = <any>this.addChild(new LeftNavBlock0());
 
     onInitialize() {
         super.onInitialize();
@@ -171,7 +174,7 @@ class LeftNav extends View {
 
         return (_this.element = _this._ce("div", ["class","c-LeftNavBar"], null, [
             _this._ce("div", ["class","searchBox"], null, [
-                _this._ce("span", [], bindings[0]),
+                _this._ce("input", ["type","text","placeholder","Search"], bindings[0]),
                 _this.searchIcon.render()
             ]),
             _this._ce("div", ["class","scrollArea"], null, [
@@ -180,44 +183,24 @@ class LeftNav extends View {
                     _this._ce("div", ["class","quota"], null, [
                         _this._ct("37.4GB available")
                     ]),
-                    _this._ce("a", ["class","link","href","#"], bindings[1], [
+                    _this._ce("a", ["class","link","href","#"], null, [
                         _this._ct("Recycle bin")
                     ]),
-                    _this._ce("a", ["class","link","href","#"], bindings[2], [
+                    _this._ce("a", ["class","link","href","#"], null, [
                         _this._ct("Manage storage")
                     ]),
-                    _this._ce("a", ["class","link","href","#"], bindings[3], [
+                    _this._ce("a", ["class","link","href","#"], null, [
                         _this._ct("Get SkyDrive apps")
                     ])
                 ])
             ])
-        ]),
+        ]));
     }
 
     _bindings = [
         {
             "id": "0",
             "text": "searchText"
-        },
-        {
-            "id": "1",
-            "events": {
-                "click": [
-                    "$toggle(foo)"
-                ]
-            }
-        },
-        {
-            "id": "2",
-            "className": {
-                "isRed": "foo"
-            }
-        },
-        {
-            "id": "3",
-            "className": {
-                "isRed": "foo"
-            }
         }
     ];
 }

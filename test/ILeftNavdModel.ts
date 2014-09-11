@@ -1,0 +1,4 @@
+interface ILeftNavdModel {
+}
+
+export = ILeftNavdModel;
