@@ -1,3 +1,4 @@
+/// <reference path="interfaces.d.ts" />
 var XMLDOM = require('xmldom');
 var ViewTemplateDefinition = require('./ViewTemplateDefinition');
 
@@ -23,9 +24,11 @@ var CompiledViewTemplate = (function () {
 
     CompiledViewTemplate.prototype.parseRootElement = function (element) {
         this.documentElement = element;
-        this.name = element.getAttribute('js-type');
+        this.fullType = element.getAttribute('js-type');
+        this.name = this._stripPath(element.getAttribute('js-type'));
         this.isPassThrough = Boolean(element.getAttribute('js-passThrough')) || false;
-        this.baseViewType = element.getAttribute('js-baseType') || 'View';
+        this.baseViewFullType = element.getAttribute('js-baseType') || '../onejs/View';
+        this.baseViewType = this._stripPath(this.baseViewFullType);
         this.viewModelType = element.getAttribute('js-model') || '';
         this.options = element.getAttribute('js-options') || '';
         this.cssInclude = (element.getAttribute('js-css') || '');
@@ -33,12 +36,6 @@ var CompiledViewTemplate = (function () {
         var requires = element.getAttribute('js-require');
 
         this.requireList = requires ? requires.split(/[ ,]+/) : [];
-
-        // If name has periods in it, just use the last part for now.
-        if (this.name.indexOf('.') > -1) {
-            var nameParts = this.name.split('.');
-            this.name = nameParts[nameParts.length - 1];
-        }
 
         // If root is js-view element, parse children. Else, parse this.
         if (element.tagName === 'js-view') {
@@ -53,6 +50,16 @@ var CompiledViewTemplate = (function () {
         element.removeAttribute('js-options');
         element.removeAttribute('js-css');
         element.removeAttribute('js-require');
+    };
+
+    // Given a name that might be a directory path, return the basename
+    // e.g. ../../Foo/Bar/Baz returns "Baz"
+    CompiledViewTemplate.prototype._stripPath = function (name) {
+        if (name.indexOf('/') > -1) {
+            return name.substr(name.lastIndexOf('/') + 1);
+        } else {
+            return name;
+        }
     };
 
     CompiledViewTemplate.prototype._parseElement = function (element) {
@@ -90,6 +97,7 @@ var CompiledViewTemplate = (function () {
 
     CompiledViewTemplate.prototype._reset = function () {
         this.name = '';
+        this.fullType = '';
         this.viewModelType = '';
         this.options = '';
         this.annotations = {};
@@ -241,7 +249,9 @@ var CompiledViewTemplate = (function () {
         var childView = this.childViews[name] = {
             name: name,
             type: subTemplate.name || '',
+            fullType: subTemplate.fullType || '',
             baseType: subTemplate.baseViewType,
+            fullBaseType: subTemplate.baseViewFullType,
             options: subTemplate.options || '',
             data: element.getAttribute('js-data') || '',
             shouldImport: (element.childNodes.length == 0),

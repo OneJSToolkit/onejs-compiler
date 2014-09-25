@@ -20,7 +20,7 @@ var TypeScriptGenerator = (function (_super) {
         var interfaceName = 'I' + template.name + 'Model';
 
         if (template.viewModelType) {
-            _this._addLine('import ' + template.viewModelType + ' = require(\'' + template.viewModelType + '\');');
+            _this._addLine('import ' + template.viewModelType + ' = require(\'./' + template.viewModelType + '\');');
         }
 
         _this._addImports(template);
@@ -28,8 +28,8 @@ var TypeScriptGenerator = (function (_super) {
         if (template.cssInclude) {
             var safeName = template.cssInclude.replace('.', '');
 
-            _this._addLine('import DomUtils = require(\'DomUtils\');');
-            _this._addLine('import ' + safeName + ' = require(\'' + template.cssInclude + '\');');
+            _this._addLine('import DomUtils = require(\'../onejs/DomUtils\');');
+            _this._addLine('import ' + safeName + ' = require(\'./' + template.cssInclude + '\');');
 
             _this._addLine();
             _this._addLine('DomUtils.loadStyles(' + safeName + '.styles);');
@@ -61,11 +61,12 @@ var TypeScriptGenerator = (function (_super) {
     };
 
     TypeScriptGenerator.prototype._addImports = function (template) {
-        var uniqueControlTypes = {
-            'View': {}
-        };
+        var _this = this;
+        var uniqueControlTypes = {};
 
-        uniqueControlTypes[template.baseViewType] = template;
+        uniqueControlTypes[template.baseViewType] = {
+            path: template.baseViewFullType
+        };
 
         function findImports(currentTemplate) {
             var i;
@@ -74,31 +75,43 @@ var TypeScriptGenerator = (function (_super) {
                 var childViewDefinition = currentTemplate.childViews[memberName];
 
                 if (childViewDefinition.shouldImport) {
-                    uniqueControlTypes[childViewDefinition.type] = childViewDefinition;
+                    uniqueControlTypes[childViewDefinition.type] = {
+                        path: childViewDefinition.fullType
+                    };
                 }
 
-                uniqueControlTypes[childViewDefinition.baseType] = childViewDefinition;
+                uniqueControlTypes[childViewDefinition.baseType] = {
+                    // TODO: calculate correct base path
+                    path: childViewDefinition.fullBaseType
+                };
             }
             for (i = 0; i < currentTemplate.subTemplates.length; i++) {
                 findImports(currentTemplate.subTemplates[i]);
             }
 
             for (i = 0; i < currentTemplate.requireList.length; i++) {
-                uniqueControlTypes[currentTemplate.requireList[i]] = null;
+                uniqueControlTypes[currentTemplate.requireList[i]] = {
+                    // TODO: calculate correct base path
+                    path: currentTemplate.requireList[i],
+                    forceReference: true
+                };
             }
         }
 
         findImports(template);
 
-        for (var typeName in uniqueControlTypes) {
-            var safeVariableName = typeName.replace('.', '');
-            this._addLine('import ' + safeVariableName + ' = require(\'' + typeName + '\');');
+        Object.keys(uniqueControlTypes).forEach(function (typeName) {
+            var controlType = uniqueControlTypes[typeName];
+
+            var relativePath = controlType.path[0] === '.' ? controlType.path : './' + controlType.path;
+
+            _this._addLine('import ' + typeName + ' = require(\'' + relativePath + '\');');
 
             // For imports that have no references, we need to add a var reference to trick TypeScript into including it.
-            if (!uniqueControlTypes[typeName]) {
-                this._addLine(safeVariableName + ';');
+            if (controlType.forceReference) {
+                _this._addLine(typeName + ';');
             }
-        }
+        });
     };
 
     TypeScriptGenerator.prototype._addOnInitialize = function (template) {

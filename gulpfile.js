@@ -19,7 +19,7 @@ gulp.task('tsc', function() {
 });
 
 gulp.task('gen', ['tsc'], function() {
-    return exec('node generate.js TestInput.html', {
+    return exec('node generate.js TestDirectoryPath.html', {
         cwd: 'test'
     }, function(error, stdout, stderr) {
         if (error) {

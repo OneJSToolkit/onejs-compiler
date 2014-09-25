@@ -1,0 +1,4 @@
+interface ITestDirectoryPathModel {
+}
+
+export = ITestDirectoryPathModel;
