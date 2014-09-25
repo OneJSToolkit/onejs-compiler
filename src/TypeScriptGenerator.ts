@@ -171,7 +171,7 @@ class TypeScriptGenerator extends BaseGenerator {
 
                             data += (isFirst ? '' : ',') + ' ' + parts[0].trim() + ': ';
 
-                            if (parts[1].trim()[0] === '\'') {
+                            if (this._isLiteral(parts[1])) {
                                 data += parts[1].trim();
                             } else {
                                 data += 'this.getValue(\'' + parts[1].trim() + '\')';
@@ -190,6 +190,22 @@ class TypeScriptGenerator extends BaseGenerator {
             }
 
             _this._addLine('}', 1);
+        }
+    }
+
+    private _isLiteral(str: string) {
+        str = str.trim();
+
+        if (str[0] === "'") {
+            return true;
+        } else if (str === 'true') {
+            return true;
+        } else if (str === 'false') {
+            return true;
+        } else if (/^-?\d+\.?\d*$/.test(str)) {
+            return true;
+        } else {
+            return false;
         }
     }
 

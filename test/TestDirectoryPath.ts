@@ -10,7 +10,7 @@ class TestDirectoryPath extends TestDirectoryPathBase {
 
     onViewModelChanged() {
         super.onViewModelChanged();
-        this.toggleSwitch.setData({ title: 'Hello!', checked: this.getValue('true') });
+        this.toggleSwitch.setData({ title: 'Hello!', checked: true, foo: 123.87 });
     }
 
     onRender(): HTMLElement {
