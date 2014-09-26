@@ -176,7 +176,8 @@ var TypeScriptGenerator = (function (_super) {
 
                         data = '{';
                         for (var listIndex = 0; listIndex < dataList.length; listIndex++) {
-                            var parts = dataList[listIndex].trim().split(/[\s:]+/);
+                            // TODO: replace this with a proper lexer for strings that can support colons inside of strings
+                            var parts = dataList[listIndex].trim().split(/[:]+/);
 
                             data += (isFirst ? '' : ',') + ' ' + parts[0].trim() + ': ';
 
