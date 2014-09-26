@@ -205,17 +205,19 @@ var TypeScriptGenerator = (function (_super) {
     TypeScriptGenerator.prototype._isLiteral = function (str) {
         str = str.trim();
 
+        var isLiteral = false;
+
         if (str[0] === "'") {
-            return true;
+            isLiteral = true;
         } else if (str === 'true') {
-            return true;
+            isLiteral = true;
         } else if (str === 'false') {
-            return true;
+            isLiteral = true;
         } else if (/^-?\d+\.?\d*$/.test(str)) {
-            return true;
-        } else {
-            return false;
+            isLiteral = true;
         }
+
+        return isLiteral;
     };
 
     TypeScriptGenerator.prototype._addProperties = function (template) {
