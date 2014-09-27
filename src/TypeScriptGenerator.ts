@@ -12,7 +12,7 @@ class TypeScriptGenerator extends BaseGenerator {
         var interfaceName = 'I' + template.name + 'Model';
 
         if (template.viewModelType) {
-            _this._addLine('import ' + template.viewModelType + ' = require(\'' + template.viewModelType + '\');');
+            _this._addLine('import ' + template.viewModelType + ' = require(\'./' + template.viewModelType + '\');');
         }
 
         _this._addImports(template);
@@ -20,8 +20,8 @@ class TypeScriptGenerator extends BaseGenerator {
         if (template.cssInclude) {
             var safeName = template.cssInclude.replace('.', '');
 
-            _this._addLine('import DomUtils = require(\'DomUtils\');');
-            _this._addLine('import ' + safeName + ' = require(\'' + template.cssInclude + '\');');
+            _this._addLine('import DomUtils = require(\'../onejs/DomUtils\');');
+            _this._addLine('import ' + safeName + ' = require(\'./' + template.cssInclude + '\');');
 
             _this._addLine();
             _this._addLine('DomUtils.loadStyles(' + safeName + '.styles);');
@@ -52,44 +52,57 @@ class TypeScriptGenerator extends BaseGenerator {
     }
 
     private _addImports(template: CompiledViewTemplate) {
-        var uniqueControlTypes = {
-            'View': {}
+        var uniqueControlTypes: { [key: string]: { path: string; forceReference?: boolean;}} = {};
+
+        uniqueControlTypes[template.baseViewType] = {
+            path: template.baseViewFullType
         };
 
-        uniqueControlTypes[template.baseViewType] = template;
-
-        function findImports(currentTemplate) {
+        function findImports(currentTemplate:CompiledViewTemplate) {
             var i;
 
             for (var memberName in currentTemplate.childViews) {
                 var childViewDefinition = currentTemplate.childViews[memberName];
 
                 if (childViewDefinition.shouldImport) {
-                    uniqueControlTypes[childViewDefinition.type] = childViewDefinition;
+                    uniqueControlTypes[childViewDefinition.type] = {
+                        path: childViewDefinition.fullType
+                    };
                 }
 
-                uniqueControlTypes[childViewDefinition.baseType] = childViewDefinition;
+                uniqueControlTypes[childViewDefinition.baseType] = {
+                    // TODO: calculate correct base path
+                    path: childViewDefinition.fullBaseType
+                }
             }
             for (i = 0; i < currentTemplate.subTemplates.length; i++) {
                 findImports(currentTemplate.subTemplates[i]);
             }
 
             for (i = 0; i < currentTemplate.requireList.length; i++) {
-                uniqueControlTypes[currentTemplate.requireList[i]] = null;
+                uniqueControlTypes[currentTemplate.requireList[i]] = {
+                    // TODO: calculate correct base path
+                    path: currentTemplate.requireList[i],
+                    forceReference: true
+                }
             }
         }
 
         findImports(template);
 
-        for (var typeName in uniqueControlTypes) {
-            var safeVariableName = typeName.replace('.', '');
-            this._addLine('import ' + safeVariableName + ' = require(\'' + typeName + '\');');
+        Object.keys(uniqueControlTypes).forEach((typeName) => {
+            var controlType = uniqueControlTypes[typeName];
+
+            var relativePath = controlType.path[0] === '.' ? controlType.path : './' + controlType.path;
+
+            this._addLine('import ' + typeName + ' = require(\'' + relativePath + '\');');
 
             // For imports that have no references, we need to add a var reference to trick TypeScript into including it.
-            if (!uniqueControlTypes[typeName]) {
-                this._addLine(safeVariableName + ';');
+            if (controlType.forceReference) {
+                this._addLine(typeName + ';');
             }
-        }
+
+        });
     }
 
     private _addOnInitialize(template) {
@@ -154,11 +167,12 @@ class TypeScriptGenerator extends BaseGenerator {
 
                         data = '{';
                         for (var listIndex = 0; listIndex < dataList.length; listIndex++) {
-                            var parts = dataList[listIndex].trim().split(/[\s:]+/);
+                            // TODO: replace this with a proper lexer for strings that can support colons inside of strings
+                            var parts = dataList[listIndex].trim().split(/[:]+/);
 
                             data += (isFirst ? '' : ',') + ' ' + parts[0].trim() + ': ';
 
-                            if (parts[1].trim()[0] === '\'') {
+                            if (this._isLiteral(parts[1])) {
                                 data += parts[1].trim();
                             } else {
                                 data += 'this.getValue(\'' + parts[1].trim() + '\')';
@@ -178,6 +192,24 @@ class TypeScriptGenerator extends BaseGenerator {
 
             _this._addLine('}', 1);
         }
+    }
+
+    private _isLiteral(str: string) {
+        str = str.trim();
+
+        var isLiteral = false;
+
+        if (str[0] === "'") {
+            isLiteral = true;
+        } else if (str === 'true') {
+            isLiteral = true;
+        } else if (str === 'false') {
+            isLiteral = true;
+        } else if (/^-?\d+\.?\d*$/.test(str)) {
+            isLiteral = true;
+        }
+
+        return isLiteral;
     }
 
     private _addProperties(template: CompiledViewTemplate) {

@@ -1,3 +1,5 @@
+/// <reference path="interfaces.d.ts" />
+
 import XMLDOM = require('xmldom');
 import ViewTemplateDefinition = require('./ViewTemplateDefinition');
 
@@ -6,15 +8,18 @@ import ViewTemplateDefinition = require('./ViewTemplateDefinition');
 /// properties. The "errors" property will be populated with an array of strings, if any
 /// occur during parsing.
 /// </summary>
+
 class CompiledViewTemplate {
     public name: string;
+    public fullType: string;
     public parentTemplate: CompiledViewTemplate;
     public baseViewType: string;
+    public baseViewFullType: string;
     public viewModelType: string;
     public options: string;
     public isPassThrough: boolean;
     public annotations: any;
-    public childViews: any;
+    public childViews: IChildViewMap<CompiledViewTemplate>;
     public properties: any;
     public subTemplates: CompiledViewTemplate[];
     public requireList: string[];
@@ -40,9 +45,11 @@ class CompiledViewTemplate {
 
     public parseRootElement(element: HTMLElement) {
         this.documentElement = element;
-        this.name = element.getAttribute('js-type');
+        this.fullType = element.getAttribute('js-type');
+        this.name = this._stripPath(element.getAttribute('js-type'));
         this.isPassThrough = Boolean(element.getAttribute('js-passThrough')) || false;
-        this.baseViewType = element.getAttribute('js-baseType') || 'View';
+        this.baseViewFullType = element.getAttribute('js-baseType') || '../onejs/View';
+        this.baseViewType = this._stripPath(this.baseViewFullType);
         this.viewModelType = element.getAttribute('js-model') || '';
         this.options = element.getAttribute('js-options') || '';
         this.cssInclude = (element.getAttribute('js-css') || '');
@@ -50,12 +57,6 @@ class CompiledViewTemplate {
         var requires = element.getAttribute('js-require');
 
         this.requireList = requires ? requires.split(/[ ,]+/) : [];
-
-        // If name has periods in it, just use the last part for now.
-        if (this.name.indexOf('.') > -1) {
-            var nameParts = this.name.split('.');
-            this.name = nameParts[nameParts.length - 1];
-        }
 
         // If root is js-view element, parse children. Else, parse this.
         if (element.tagName === 'js-view') {
@@ -71,6 +72,16 @@ class CompiledViewTemplate {
         element.removeAttribute('js-options');
         element.removeAttribute('js-css');
         element.removeAttribute('js-require');
+    }
+
+    // Given a name that might be a directory path, return the basename
+    // e.g. ../../Foo/Bar/Baz returns "Baz"
+    private _stripPath(name: string): string {
+        if (name.indexOf('/') > -1) {
+            return name.substr(name.lastIndexOf('/') + 1);
+        } else {
+            return name;
+        }
     }
 
     private _parseElement(element: HTMLElement) {
@@ -113,6 +124,7 @@ class CompiledViewTemplate {
 
     private _reset() {
         this.name = '';
+        this.fullType = '';
         this.viewModelType = '';
         this.options = '';
         this.annotations = {};
@@ -272,7 +284,9 @@ class CompiledViewTemplate {
         var childView = this.childViews[name] = {
             name: name,
             type: subTemplate.name || '',
+            fullType: subTemplate.fullType || '',
             baseType: subTemplate.baseViewType,
+            fullBaseType: subTemplate.baseViewFullType,
             options: subTemplate.options || '',
             data: element.getAttribute('js-data') || '',
             shouldImport: (element.childNodes.length == 0),
