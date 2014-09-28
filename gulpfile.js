@@ -1,7 +1,7 @@
 'use strict';
 
 var gulp = require('gulp');
-var tsc = require('gulp-tsc');
+var tsc = require('gulp-typescript');
 var flatten = require('gulp-flatten');
 var gutil = require('gulp-util');
 var exec = require('child_process').exec;

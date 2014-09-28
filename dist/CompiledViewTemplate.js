@@ -208,7 +208,7 @@ var CompiledViewTemplate = (function () {
 
         element.setAttribute('js-name', this._toCamelCase(repeatBlockType));
         element.setAttribute('js-type', repeatBlockType);
-        element.setAttribute('js-baseType', 'Repeater');
+        element.setAttribute('js-baseType', '../onejs/Repeater');
         element.setAttribute('js-passThrough', 'true');
         element.setAttribute('js-options', '{ childViewType: \'' + repeatItemType + '\', itemName: \'' + '"' + repeatTarget + '"' + '\'' + (repeatIndex ? (', itemIndex: \'' + '"' + repeatIndex + '"\'') : '') + ' }');
 

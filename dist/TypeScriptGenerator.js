@@ -64,6 +64,10 @@ var TypeScriptGenerator = (function (_super) {
         var _this = this;
         var uniqueControlTypes = {};
 
+        uniqueControlTypes['View'] = {
+            path: '../onejs/View'
+        };
+
         uniqueControlTypes[template.baseViewType] = {
             path: template.baseViewFullType
         };

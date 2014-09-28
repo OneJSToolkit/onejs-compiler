@@ -1,9 +1,9 @@
-import LeftNavModel = require('LeftNavModel');
-import View = require('View');
-import  = require('');
-import Repeater = require('Repeater');
-import DomUtils = require('DomUtils');
-import LeftNavcss = require('LeftNav.css');
+import LeftNavModel = require('./LeftNavModel');
+import View = require('../onejs/View');
+import ImageSprite = require('../ImageSprite/ImageSprite');
+import Repeater = require('../onejs/Repeater');
+import DomUtils = require('../onejs/DomUtils');
+import LeftNavcss = require('./LeftNav.css');
 
 DomUtils.loadStyles(LeftNavcss.styles);
 
@@ -53,7 +53,7 @@ class LeftNavBlock2 extends Repeater {
 
 class LeftNavBlock1Item extends View {
     viewName = 'LeftNavBlock1Item';
-    leftNavBlock2 = <any>this.addChild(new ());
+    leftNavBlock2 = <any>this.addChild(new LeftNavBlock2());
 
     onInitialize() {
         super.onInitialize();
@@ -108,7 +108,7 @@ class LeftNavBlock1 extends Repeater {
 
 class LeftNavBlock0Item extends View {
     viewName = 'LeftNavBlock0Item';
-    leftNavBlock1 = <any>this.addChild(new ());
+    leftNavBlock1 = <any>this.addChild(new LeftNavBlock1());
 
     onInitialize() {
         super.onInitialize();
@@ -151,8 +151,8 @@ class LeftNavBlock0 extends Repeater {
 class LeftNav extends View {
     viewName = 'LeftNav';
     viewModelType = LeftNavModel;
-    searchIcon = <any>this.addChild(new ());
-    leftNavBlock0 = <any>this.addChild(new ());
+    searchIcon = <any>this.addChild(new ImageSprite());
+    leftNavBlock0 = <any>this.addChild(new LeftNavBlock0());
 
     onInitialize() {
         super.onInitialize();
@@ -176,6 +176,11 @@ class LeftNav extends View {
             ]),
             _this._ce("div", ["class","scrollArea"], null, [
                 _this.leftNavBlock0.render(),
+                _this._ce("div", ["js-repeater","command in commands"], null, [
+                    _this._ce("div", [], null, [
+                        _this._ct("hi")
+                    ])
+                ]),
                 _this._ce("div", ["class","c-QuotaPane"], null, [
                     _this._ce("div", ["class","quota"], null, [
                         _this._ct("37.4GB available")
@@ -191,7 +196,7 @@ class LeftNav extends View {
                     ])
                 ])
             ])
-        ]),
+        ]));
     }
 
     _bindings = [

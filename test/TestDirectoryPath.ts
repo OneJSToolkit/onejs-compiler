@@ -1,7 +1,7 @@
 import TestDirectoryPathModel = require('./TestDirectoryPathModel');
+import View = require('../onejs/View');
 import TestDirectoryPathBase = require('./TestDirectoryPathBase');
 import ToggleSwitch = require('../ToggleSwitch/ToggleSwitch');
-import View = require('../onejs/View');
 
 class TestDirectoryPath extends TestDirectoryPathBase {
     viewName = 'TestDirectoryPath';

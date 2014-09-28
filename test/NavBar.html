@@ -1,0 +1,10 @@
+<js-view js-type="NavBar" 
+         js-baseType="NavBarBase" 
+         js-model="NavBarModel" 
+         js-css="NavBar.css">
+  <div class="ms-NavBar">
+    <ul class="ms-NavBar-items" js-repeat="command in commands">
+      <li class="ms-NavBar-item" js-bind="text:command.text"></li>
+    </ul>
+  </div>
+</js-view>

@@ -1,0 +1,4 @@
+interface INavBarModel {
+}
+
+export = INavBarModel;

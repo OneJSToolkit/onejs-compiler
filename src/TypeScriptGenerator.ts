@@ -54,6 +54,10 @@ class TypeScriptGenerator extends BaseGenerator {
     private _addImports(template: CompiledViewTemplate) {
         var uniqueControlTypes: { [key: string]: { path: string; forceReference?: boolean;}} = {};
 
+        uniqueControlTypes['View'] = {
+            path: '../onejs/View'
+        };
+        
         uniqueControlTypes[template.baseViewType] = {
             path: template.baseViewFullType
         };
