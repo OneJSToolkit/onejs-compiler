@@ -15,7 +15,7 @@ var TemplatePreprocessor = (function () {
         // replace custom elements with js-view tags.
         rootElement = _expandNestedViews(rootElement);
 
-        _ensureChildrenHaveNames(rootElement, 0);
+        _ensureChildrenHaveNames(rootElement);
 
         return rootElement;
     };
@@ -79,20 +79,26 @@ function _isCustomElement(child) {
     return (_knownElements.indexOf(child.tagName) == -1);
 }
 
-function _ensureChildrenHaveNames(element, count) {
-    for (var i = 0; i < element.childNodes.length; i++) {
-        var child = element.childNodes[i];
+function _ensureChildrenHaveNames(element) {
+    var count = 0;
 
-        if (child.nodeType === child.ELEMENT_NODE) {
-            if (child.tagName == 'js-view') {
-                var name = child.getAttribute('js-name');
+    _parseChild(element);
 
-                if (!name) {
-                    child.setAttribute('js-name', '_childView' + count++);
+    function _parseChild(childElement) {
+        for (var i = 0; i < childElement.childNodes.length; i++) {
+            var child = childElement.childNodes[i];
+
+            if (child.nodeType === child.ELEMENT_NODE) {
+                if (child.tagName == 'js-view') {
+                    var name = child.getAttribute('js-name');
+
+                    if (!name) {
+                        child.setAttribute('js-name', '_childView' + count++);
+                    }
                 }
-            }
 
-            _ensureChildrenHaveNames(child, count);
+                _parseChild(child);
+            }
         }
     }
 }
