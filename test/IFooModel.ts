@@ -1,0 +1,4 @@
+interface IFooModel {
+}
+
+export = IFooModel;

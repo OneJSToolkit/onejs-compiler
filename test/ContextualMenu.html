@@ -1,0 +1,7 @@
+<js-view js-type="ContextualMenu" 
+         js-baseType="ContextualMenuBase"
+         js-model="ContextualMenuModel">
+  <ul class="ms-ContextualMenu" js-repeat="item in items">
+    <li class="ms-ContextualMenu-item" js-bind="class:$owner.getMenuItemClassString(index), text:item.text"></li>
+  </ul>
+</js-view>

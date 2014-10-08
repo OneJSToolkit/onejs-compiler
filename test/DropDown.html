@@ -1,0 +1,21 @@
+<div class="DropDown"
+	js-type="DropDown"
+	js-baseType="DropDownBase"
+	js-model="DropDownModel"
+	js-css="DropDown.css"
+	js-bind="className.isExpanded:isExpanded"
+	>
+<!--
+	<select js-repeat="option in $owner._options" js-userAction="change:$owner._onSelectionChanged">
+		<option js-bind="value: option.key, text: option.name" />
+	</select>
+-->
+	<span class="DropDown-item" js-bind="text:selectedItem.name" js-userAction="click:$view._onMouseClick"></span>
+
+	<ul class="DropDown-menu" js-repeat="option in options">
+		<li class="DropDown-item"
+			js-bind="className.isSelected:$parent.isSelected(option), text:option.name"
+			js-userAction="click:$owner._onItemClicked(option)"></li>
+	</ul>
+
+</div>

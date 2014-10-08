@@ -1,6 +1,7 @@
 /// <reference path="interfaces.d.ts" />
 var XMLDOM = require('xmldom');
 var ViewTemplateDefinition = require('./ViewTemplateDefinition');
+var TemplatePreprocessor = require('./TemplatePreprocessor');
 
 /// <summary>
 /// Represents a compiled view template. Provides a parse method to populate its public
@@ -19,7 +20,9 @@ var CompiledViewTemplate = (function () {
     }
     CompiledViewTemplate.prototype.parse = function (templateContent) {
         this._reset();
-        this.parseRootElement(new XMLDOM.DOMParser().parseFromString(templateContent, 'application/xhtml+xml').documentElement);
+
+        var doc = TemplatePreprocessor.process(new XMLDOM.DOMParser().parseFromString(templateContent, 'application/xhtml+xml').documentElement);
+        this.parseRootElement(doc);
     };
 
     CompiledViewTemplate.prototype.parseRootElement = function (element) {
@@ -258,6 +261,12 @@ var CompiledViewTemplate = (function () {
             template: subTemplate
         };
 
+        var events = element.getAttribute('js-userAction');
+
+        if (events) {
+            this._processUserActionAttribute(element, null, events);
+        }
+
         if (!childView.shouldImport) {
             this.subTemplates.push(subTemplate);
         }
@@ -439,7 +448,7 @@ var CompiledViewTemplate = (function () {
 
     CompiledViewTemplate.prototype._getAnnotation = function (element) {
         if (!element['annotation']) {
-            var id = String(this._annotationCount++);
+            var id = element.getAttribute('js-name') || String(this._annotationCount++);
 
             this.annotations[id] = element['annotation'] = {
                 id: id

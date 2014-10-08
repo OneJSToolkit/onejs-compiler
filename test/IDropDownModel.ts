@@ -1,0 +1,4 @@
+interface IDropDownModel {
+}
+
+export = IDropDownModel;

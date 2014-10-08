@@ -2,6 +2,7 @@
 
 import XMLDOM = require('xmldom');
 import ViewTemplateDefinition = require('./ViewTemplateDefinition');
+import TemplatePreprocessor = require('./TemplatePreprocessor');
 
 /// <summary>
 /// Represents a compiled view template. Provides a parse method to populate its public
@@ -40,7 +41,9 @@ class CompiledViewTemplate {
 
     public parse(templateContent: string) {
         this._reset();
-        this.parseRootElement(new XMLDOM.DOMParser().parseFromString(templateContent, 'application/xhtml+xml').documentElement);
+
+        var doc = TemplatePreprocessor.process(new XMLDOM.DOMParser().parseFromString(templateContent, 'application/xhtml+xml').documentElement);
+        this.parseRootElement(doc);
     }
 
     public parseRootElement(element: HTMLElement) {
@@ -293,6 +296,12 @@ class CompiledViewTemplate {
             template: subTemplate
         };
 
+        var events = element.getAttribute('js-userAction');
+
+        if (events) {
+            this._processUserActionAttribute(element, null, events);
+        }
+
         if (!childView.shouldImport) {
             this.subTemplates.push(subTemplate);
         }
@@ -475,7 +484,8 @@ class CompiledViewTemplate {
 
     private _getAnnotation(element): any {
         if (!element['annotation']) {
-            var id = String(this._annotationCount++);
+
+            var id = element.getAttribute('js-name') || String(this._annotationCount++);
 
             this.annotations[id] = element['annotation'] = {
                 id: id

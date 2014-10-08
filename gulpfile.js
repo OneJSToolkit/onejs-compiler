@@ -19,7 +19,7 @@ gulp.task('tsc', function() {
 });
 
 gulp.task('gen', ['tsc'], function() {
-    return exec('node generate.js TestDirectoryPath.html', {
+    return exec('node generate.js LeftNav.html', {
         cwd: 'test'
     }, function(error, stdout, stderr) {
         if (error) {
@@ -29,7 +29,7 @@ gulp.task('gen', ['tsc'], function() {
 });
 
 gulp.task('watch', function() {
-    gulp.watch(paths.source, ['default', 'gen']);
+    gulp.watch([paths.source, 'test/*.html'], ['default', 'gen']);
 });
 
-gulp.task('default', ['tsc']);
+gulp.task('default', ['tsc', 'gen']);
