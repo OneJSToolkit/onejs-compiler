@@ -5,9 +5,13 @@ var _testStubPostFix = 'TestStub';
 var _baseTestStubClass = 'ViewTestStub';
 var _getSubControLocationClass = 'GetSubControlLocation';
 
-/// <summary>
-/// Generates a TypeScript test stub class from a OneJS template.
-/// </summary>
+
+/**
+ * Generates a TypeScript test stub class from a OneJS template.
+ *
+ * @constructor
+ * @this {TypeScriptTestStubGenerator}
+ */
 class TypeScriptTestStubGenerator extends BaseGenerator {
 
     public generate(templateContent: string): string {
