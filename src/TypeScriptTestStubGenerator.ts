@@ -86,7 +86,7 @@ class TypeScriptTestStubGenerator extends BaseGenerator {
 
         this._addLine();
         this._addLine('class ' + template.name + _testStubPostFix + ' extends ' + (rootTemplate ? _baseTestStubClass : template.baseViewType + _testStubPostFix) + ' {');
-        this._addProperties(template);
+        this._addChildViewAccessors(template);
         this._addStateAccessors(template);
         this._addLine('}');
 
@@ -95,10 +95,10 @@ class TypeScriptTestStubGenerator extends BaseGenerator {
         }
     }
 
-    private _addProperties(template: CompiledViewTemplate) {
+    private _addChildViewAccessors(template: CompiledViewTemplate) {
         this._addLine('originalViewName = \'' + template.name + '\';', 1);
 
-        // Add properties
+        // Add child views
         for (var memberName in template.childViews) {
             var childViewDefinition = template.childViews[memberName];
 
