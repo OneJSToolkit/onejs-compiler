@@ -83,6 +83,7 @@ class TypeScriptTestStubGenerator extends BaseGenerator {
         this._addLine();
         this._addLine('class ' + template.name + _testStubPostFix + ' extends ' + (rootTemplate ? _baseTestStubClass : template.baseViewType + _testStubPostFix) + ' {');
         this._addProperties(template);
+        this._addStateAccessors(template);
         this._addLine('}');
 
         for (var i = 0; i < template.subTemplates.length; i++) {
@@ -101,6 +102,40 @@ class TypeScriptTestStubGenerator extends BaseGenerator {
             this._addLine('return new ' + childViewDefinition.type + _testStubPostFix + '(new ' + _getSubControLocationClass + '(\'' + memberName + '\', this.controlLocation, this.webDriver), this.webDriver);', 2);
             this._addLine('}', 1);
         }
+    }
+
+    private _addStateAccessor(source: string) {
+        this._addLine(source.replace('.', '_') + '_State<T>() {', 1);
+        this._addLine('return this.getState<T>(\'' + source + '\');', 2);
+        this._addLine('}', 1);
+    }
+
+    private _addStateAccessors(template: CompiledViewTemplate) {
+    var _this = this;
+    var annotationBlocks = [];
+
+    for (var id in template.annotations) {
+        var annotation = template.annotations[id];
+
+        for (var x in annotation) {
+            switch (x) {
+                case "html":
+                case "text":
+                    {
+                        this._addStateAccessor(annotation[x]);
+                        break;
+                    }
+                case "attr":
+                case "className":
+                    {
+                        for (var y in annotation[x]) {
+                            this._addStateAccessor(annotation[x][y]);
+                        }
+                        break;
+                    }
+            }
+        }
+    }
     }
 }
 

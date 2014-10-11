@@ -42,10 +42,31 @@ class LeftNavBlock1ItemTestStub extends ViewTestStub {
     leftNavBlock2(): LeftNavBlock2TestStub {
         return new LeftNavBlock2TestStub(new GetSubControlLocation('leftNavBlock2', this.controlLocation, this.webDriver), this.webDriver);
     }
+    link_isExpanded_State<T>() {
+        return this.getState<T>('link.isExpanded');
+    }
+    $parent_isSelected(link)_State<T>() {
+        return this.getState<T>('$parent.isSelected(link)');
+    }
+    link_url_State<T>() {
+        return this.getState<T>('link.url');
+    }
+    link_text_State<T>() {
+        return this.getState<T>('link.text');
+    }
 }
 
 class LeftNavBlock2ItemTestStub extends ViewTestStub {
     originalViewName = 'LeftNavBlock2Item';
+    $parent_isSelected(link)_State<T>() {
+        return this.getState<T>('$parent.isSelected(link)');
+    }
+    link_url_State<T>() {
+        return this.getState<T>('link.url');
+    }
+    link_text_State<T>() {
+        return this.getState<T>('link.text');
+    }
 }
 
 class LeftNavBlock2TestStub extends RepeaterTestStub {
