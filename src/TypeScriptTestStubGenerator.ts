@@ -2,7 +2,7 @@ import BaseGenerator = require('./BaseGenerator');
 import CompiledViewTemplate = require('./CompiledViewTemplate');
 
 var _testStubPostFix = 'TestStub';
-var _baseTestStubClass = 'TestStub';
+var _baseTestStubClass = 'ViewTestStub';
 var _getSubControLocationClass = 'GetSubControlLocation';
 
 /// <summary>
@@ -14,7 +14,7 @@ class TypeScriptTestStubGenerator extends BaseGenerator {
         var template = this.template = this._getTemplate(templateContent);
 
         this._addImports(template)
-        this._addClass(template);
+        this._addClass(template, true);
 
         this._addLine();
         this._addLine('export = ' + template.name + _testStubPostFix + ';');
@@ -78,15 +78,15 @@ class TypeScriptTestStubGenerator extends BaseGenerator {
         });
     }
 
-    private _addClass(template: CompiledViewTemplate) {
+    private _addClass(template: CompiledViewTemplate, rootTemplate: Boolean) {
 
         this._addLine();
-        this._addLine('class ' + template.name + _testStubPostFix + ' extends ' + _baseTestStubClass + ' {');
+        this._addLine('class ' + template.name + _testStubPostFix + ' extends ' + (rootTemplate ? _baseTestStubClass : template.baseViewType + _testStubPostFix) + ' {');
         this._addProperties(template);
         this._addLine('}');
 
         for (var i = 0; i < template.subTemplates.length; i++) {
-            this._addClass(template.subTemplates[i]);
+            this._addClass(template.subTemplates[i], false);
         }
     }
 
@@ -98,7 +98,7 @@ class TypeScriptTestStubGenerator extends BaseGenerator {
             var childViewDefinition = template.childViews[memberName];
 
             this._addLine(memberName + '(): ' + childViewDefinition.type + _testStubPostFix + ' {', 1);
-            this._addLine('return new ' + childViewDefinition.type + _testStubPostFix + '(new ' + _getSubControLocationClass+'(\'' + memberName + '\', this.controlLocation, this.webDriver), this.webDriver);', 2);
+            this._addLine('return new ' + childViewDefinition.type + _testStubPostFix + '(new ' + _getSubControLocationClass + '(\'' + memberName + '\', this.controlLocation, this.webDriver), this.webDriver);', 2);
             this._addLine('}', 1);
         }
     }

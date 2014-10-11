@@ -7,7 +7,7 @@ var __extends = this.__extends || function (d, b) {
 var BaseGenerator = require('./BaseGenerator');
 
 var _testStubPostFix = 'TestStub';
-var _baseTestStubClass = 'TestStub';
+var _baseTestStubClass = 'ViewTestStub';
 var _getSubControLocationClass = 'GetSubControlLocation';
 
 /// <summary>
@@ -22,7 +22,7 @@ var TypeScriptTestStubGenerator = (function (_super) {
         var template = this.template = this._getTemplate(templateContent);
 
         this._addImports(template);
-        this._addClass(template);
+        this._addClass(template, true);
 
         this._addLine();
         this._addLine('export = ' + template.name + _testStubPostFix + ';');
@@ -81,14 +81,14 @@ var TypeScriptTestStubGenerator = (function (_super) {
         });
     };
 
-    TypeScriptTestStubGenerator.prototype._addClass = function (template) {
+    TypeScriptTestStubGenerator.prototype._addClass = function (template, rootTemplate) {
         this._addLine();
-        this._addLine('class ' + template.name + _testStubPostFix + ' extends ' + _baseTestStubClass + ' {');
+        this._addLine('class ' + template.name + _testStubPostFix + ' extends ' + (rootTemplate ? _baseTestStubClass : template.baseViewType + _testStubPostFix) + ' {');
         this._addProperties(template);
         this._addLine('}');
 
         for (var i = 0; i < template.subTemplates.length; i++) {
-            this._addClass(template.subTemplates[i]);
+            this._addClass(template.subTemplates[i], false);
         }
     };
 
