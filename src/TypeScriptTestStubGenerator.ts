@@ -84,6 +84,10 @@ class TypeScriptTestStubGenerator extends BaseGenerator {
         this._addLine('class ' + template.name + _testStubPostFix + ' extends ' + _baseTestStubClass + ' {');
         this._addProperties(template);
         this._addLine('}');
+
+        for (var i = 0; i < template.subTemplates.length; i++) {
+            this._addClass(template.subTemplates[i]);
+        }
     }
 
     private _addProperties(template: CompiledViewTemplate) {

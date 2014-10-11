@@ -28,4 +28,37 @@ class LeftNavTestStub extends TestStub {
     }
 }
 
+class LeftNavBlock0ItemTestStub extends TestStub {
+    originalViewName = 'LeftNavBlock0Item';
+    leftNavBlock1(): LeftNavBlock1TestStub {
+        return new LeftNavBlock1TestStub(new GetSubControlLocation('leftNavBlock1', this.controlLocation, this.webDriver), this.webDriver);
+    }
+}
+
+class LeftNavBlock1ItemTestStub extends TestStub {
+    originalViewName = 'LeftNavBlock1Item';
+    expandButton(): ImageButtonTestStub {
+        return new ImageButtonTestStub(new GetSubControlLocation('expandButton', this.controlLocation, this.webDriver), this.webDriver);
+    }
+    leftNavBlock2(): LeftNavBlock2TestStub {
+        return new LeftNavBlock2TestStub(new GetSubControlLocation('leftNavBlock2', this.controlLocation, this.webDriver), this.webDriver);
+    }
+}
+
+class LeftNavBlock2ItemTestStub extends TestStub {
+    originalViewName = 'LeftNavBlock2Item';
+}
+
+class LeftNavBlock2TestStub extends TestStub {
+    originalViewName = 'LeftNavBlock2';
+}
+
+class LeftNavBlock1TestStub extends TestStub {
+    originalViewName = 'LeftNavBlock1';
+}
+
+class LeftNavBlock0TestStub extends TestStub {
+    originalViewName = 'LeftNavBlock0';
+}
+
 export = LeftNavTestStub;
