@@ -256,6 +256,7 @@ var CompiledViewTemplate = (function () {
             baseType: subTemplate.baseViewType,
             fullBaseType: subTemplate.baseViewFullType,
             options: subTemplate.options || '',
+            init: element.getAttribute('js-init') || '',
             data: element.getAttribute('js-data') || '',
             shouldImport: (element.childNodes.length == 0),
             template: subTemplate

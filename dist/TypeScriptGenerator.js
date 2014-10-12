@@ -122,29 +122,32 @@ var TypeScriptGenerator = (function (_super) {
     };
 
     TypeScriptGenerator.prototype._addOnInitialize = function (template) {
-        var hasSubBlocks = false;
+        var hasInitialization = false;
         var childView;
         var memberName;
 
         for (memberName in template.childViews) {
-            childView = template.childViews[memberName].template;
-            if (childView.isPassThrough) {
-                hasSubBlocks = true;
+            childView = template.childViews[memberName];
+            if (childView.template.isPassThrough || childView.init) {
+                hasInitialization = true;
                 break;
             }
         }
 
-        if (hasSubBlocks) {
+        if (hasInitialization) {
             this._addLine();
             this._addLine('onInitialize() {', 1);
 
             this._addLine('super.onInitialize();', 2);
 
             for (memberName in template.childViews) {
-                childView = template.childViews[memberName].template;
+                childView = template.childViews[memberName];
 
-                if (childView.isPassThrough) {
+                if (childView.template.isPassThrough) {
                     this._addLine('this.' + memberName + '.owner = ' + (template.parentTemplate ? 'this.owner' : 'this') + ';', 2);
+                }
+                if (childView.init) {
+                    this._addSetData(memberName, childView.init);
                 }
             }
 
@@ -198,39 +201,41 @@ var TypeScriptGenerator = (function (_super) {
                 var childViewDefinition = template.childViews[memberName];
 
                 if (childViewDefinition.data) {
-                    var data = childViewDefinition.data;
-
-                    if (data.indexOf('{') == 0) {
-                        data = data.substr(1, data.length - 2);
-                        var dataList = data.split(',');
-                        var isFirst = true;
-
-                        data = '{';
-                        for (var listIndex = 0; listIndex < dataList.length; listIndex++) {
-                            // TODO: replace this with a proper lexer for strings that can support colons inside of strings
-                            var parts = dataList[listIndex].trim().split(/[:]+/);
-
-                            data += (isFirst ? '' : ',') + ' ' + parts[0].trim() + ': ';
-
-                            if (this._isLiteral(parts[1])) {
-                                data += parts[1].trim();
-                            } else {
-                                data += 'this.getValue(\'' + parts[1].trim() + '\')';
-                            }
-
-                            isFirst = false;
-                        }
-                        data += ' }';
-                    } else {
-                        data = 'this.getValue(\'' + data + '\')';
-                    }
-
-                    this._addLine('this.' + memberName + '.setData(' + data + ');', 2);
+                    this._addSetData(memberName, childViewDefinition.data);
                 }
             }
 
             _this._addLine('}', 1);
         }
+    };
+
+    TypeScriptGenerator.prototype._addSetData = function (memberName, data) {
+        if (data.indexOf('{') == 0) {
+            data = data.substr(1, data.length - 2);
+            var dataList = data.split(',');
+            var isFirst = true;
+
+            data = '{';
+            for (var listIndex = 0; listIndex < dataList.length; listIndex++) {
+                // TODO: replace this with a proper lexer for strings that can support colons inside of strings
+                var parts = dataList[listIndex].trim().split(/[:]+/);
+
+                data += (isFirst ? '' : ',') + ' ' + parts[0].trim() + ': ';
+
+                if (this._isLiteral(parts[1])) {
+                    data += parts[1].trim();
+                } else {
+                    data += 'this.getValue(\'' + parts[1].trim() + '\')';
+                }
+
+                isFirst = false;
+            }
+            data += ' }';
+        } else {
+            data = 'this.getValue(\'' + data + '\')';
+        }
+
+        this._addLine('this.' + memberName + '.setData(' + data + ');', 2);
     };
 
     TypeScriptGenerator.prototype._isLiteral = function (str) {
