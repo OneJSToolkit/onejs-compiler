@@ -10,9 +10,12 @@ var _testStubPostFix = 'TestStub';
 var _baseTestStubClass = 'ViewTestStub';
 var _getSubControLocationClass = 'GetSubControlLocation';
 
-/// <summary>
-/// Generates a TypeScript test stub class from a OneJS template.
-/// </summary>
+/**
+* Generates a TypeScript test stub class from a OneJS template.
+*
+* @constructor
+* @this {TypeScriptTestStubGenerator}
+*/
 var TypeScriptTestStubGenerator = (function (_super) {
     __extends(TypeScriptTestStubGenerator, _super);
     function TypeScriptTestStubGenerator() {
@@ -84,7 +87,7 @@ var TypeScriptTestStubGenerator = (function (_super) {
     TypeScriptTestStubGenerator.prototype._addClass = function (template, rootTemplate) {
         this._addLine();
         this._addLine('class ' + template.name + _testStubPostFix + ' extends ' + (rootTemplate ? _baseTestStubClass : template.baseViewType + _testStubPostFix) + ' {');
-        this._addProperties(template);
+        this._addChildViewAccessors(template);
         this._addStateAccessors(template);
         this._addLine('}');
 
@@ -93,7 +96,7 @@ var TypeScriptTestStubGenerator = (function (_super) {
         }
     };
 
-    TypeScriptTestStubGenerator.prototype._addProperties = function (template) {
+    TypeScriptTestStubGenerator.prototype._addChildViewAccessors = function (template) {
         this._addLine('originalViewName = \'' + template.name + '\';', 1);
 
         for (var memberName in template.childViews) {
