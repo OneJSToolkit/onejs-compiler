@@ -1,6 +1,56 @@
 import BaseGenerator = require('./BaseGenerator');
 import CompiledViewTemplate = require('./CompiledViewTemplate');
 
+interface IBindingEventMap {
+    [key: string]: string[];
+}
+
+interface IBinding {
+    className?: IMap;
+    css?: IMap;
+    text?: string;
+    html?: string;
+    attr?: IMap;
+    events?: IBindingEventMap;
+};
+
+enum BlockType {
+    Element,
+    Text,
+    Comment,
+    Block,
+    IfBlock,
+    RepeaterBlock,
+    View
+}
+
+interface IMap {
+    [key: string]: string;
+}
+
+interface IBlockSpec {
+    type: BlockType;
+    children?: IBlockSpec[];
+
+    //Element
+    tag?: string;
+    attr?: IMap;
+    binding?: IBinding;
+
+    //Text
+    value?: string;
+
+    //IfBlock and RepeaterBlock
+    source?: string;
+
+    //RepeaterBlock
+    iterator?: string;
+
+    //View
+    name?: string;
+}
+
+
 /// <summary>
 /// Generates a TypeScript view class from a OneJS template.
 /// </summary>
@@ -41,9 +91,7 @@ class TypeScriptGenerator extends BaseGenerator {
         this._addProperties(template);
         this._addOnInitialize(template);
         this._addOnViewModelChanged(template);
-        this._addOnRender(template);
-        //this._addOnRenderHtml(template);
-        this._addAnnotations(template);
+        this._addSpec(template);
         this._addLine('}');
 
         for (var i = 0; i < template.subTemplates.length; i++) {
@@ -277,202 +325,127 @@ class TypeScriptGenerator extends BaseGenerator {
         }
     }
 
-    private _addOnRender(template: CompiledViewTemplate) {
-        var _this = this;
+    private _getSpecObject(template: CompiledViewTemplate): IBlockSpec {
+        var firstElement:Element = template.documentElement;
 
-        _this._addLine();
-        _this._addLine('onRender(): HTMLElement {', 1);
-        _this._addLine('var _this = this;', 2);
-        _this._addLine('var bindings = _this._bindings;', 2);
-        _this._addLine();
-
-        var firstElement = template.documentElement.tagName == 'js-view' ? template.documentElement.firstChild : template.documentElement
-
-        this._addLine('return (_this.element = ' + this._getElementString(2, firstElement, true) + ');', 2);
-
-        _this._addLine('}', 1);
+        if (template.documentElement.tagName == 'js-view') {
+            firstElement = template.documentElement.firstElementChild;
+        }
+        return this._getSpecElement(firstElement);
     }
 
-    private _getElementString(indent, childNode, isRoot ? : boolean) {
-        var elementString = '';
+    private _getSpecElement(element: Element): IBlockSpec {
+        switch (element.tagName) {
+            case "js-if":
+                return this._getSpecIfElement(element);
+                break;
+            case "js-repeat":
+                return this._getSpecRepeatElement(element);
+                break;
+            case "js-view":
+                return this._getSpecViewElement(element);
+                break;
 
-        if (childNode.nodeType === childNode.ELEMENT_NODE) {
-            if (childNode.tagName == 'js-view') {
-                elementString += this._getSubViewString(indent, childNode);
-            } else {
-                elementString += this._getElementNodeString(indent, childNode);
-            }
-        } else if (childNode.nodeType === childNode.TEXT_NODE) {
-            elementString += this._getTextNodeString(indent, childNode);
+            default:
+                return this._getSpecHTMLElement(element);
+                break;
         }
-
-        if (!isRoot && elementString) {
-            elementString = this._getIndent(indent) + elementString;
-        }
-
-        return elementString;
     }
 
-    private _getSubViewString(indent, element) {
-        return '_this.' + element.getAttribute('js-name') + '.render()';
+    private _getSpecIfElement(element: Element): IBlockSpec {
+        return {
+            type: BlockType.IfBlock,
+            source: element.getAttribute('source'),
+            children: this._getSpecChildren(element.childNodes)
+        };
     }
 
-    private _getElementNodeString(indent, childNode) {
-        var createElementString = 'DomUtils.ce("' + childNode.tagName + '"';
-        var annotations = childNode['annotation'];
-        var bindings = annotations ? ('bindings[' + annotations.id + ']') : null;
-
-        var attributes = [];
-
-        for (var attrIndex = 0; attrIndex < childNode.attributes.length; attrIndex++) {
-            attributes.push(childNode.attributes[attrIndex].name);
-            attributes.push(childNode.attributes[attrIndex].value);
-        }
-
-        // attributes
-        createElementString += ', ' + JSON.stringify(attributes);
-
-        // children
-        var hasChildren = childNode.childNodes.length > 0;
-
-        if (hasChildren && ( < HTMLElement > childNode.childNodes[0]).tagName == 'js-items') {
-            createElementString += ', this.getChildElements()';
-        } else if (hasChildren || bindings) {
-            createElementString += ', ' + this._getChildrenString(indent + 1, childNode);
-        }
-
-        if (bindings) {
-            createElementString += ', ' + bindings;
-        }
-
-        createElementString += ')';
-
-        return createElementString;
+    private _getSpecRepeatElement(element: Element): IBlockSpec {
+        return {
+            type: BlockType.RepeaterBlock,
+            source: element.getAttribute('source'),
+            iterator: element.getAttribute('iterator'),
+            children: this._getSpecChildren(element.childNodes)
+        };
     }
 
-    private _getTextNodeString(indent, childNode) {
-        return "DomUtils.ct(" + JSON.stringify(childNode.textContent) + ")";
+    private _getSpecViewElement(element: Element): IBlockSpec {
+        return {
+            type: BlockType.View,
+            name: element.getAttribute('js-name'),
+            children: this._getSpecChildren(element.childNodes)
+        };
     }
 
-    private _getChildrenString(indent, element) {
-        var childNodeString = '[';
-        var firstItem = true;
-
-        for (var i = 0; i < element.childNodes.length; i++) {
-            var childNode = element.childNodes[i];
-            var nodeString = this._getElementString(indent, childNode);
-
-            if (nodeString) {
-                if (!firstItem) {
-                    childNodeString += ',';
-                }
-                firstItem = false;
-
-                childNodeString += '\n' + nodeString;
+    private _getSpecHTMLElementAttributes(element: Element): IMap {
+        var map: IMap;
+        
+        var attrLength = element.attributes.length;
+        if (attrLength) {
+            map = {};
+            for (var i = 0; i < attrLength; i++) {
+                var attribute = element.attributes[i];
+                map[attribute.name] = attribute.value;
             }
         }
-
-        if (!firstItem) {
-            childNodeString += '\n' + this._getIndent(indent - 1);
-        }
-
-        childNodeString += ']';
-
-        return childNodeString;
-    }
-    /*
-    private _addOnRenderHtml(template: CompiledViewTemplate) {
-        var _this = this;
-
-        _this._addLine();
-        _this._addLine('onRenderHtml(): string {', 1);
-        _this._addLine('return \'\' +', 2);
-
-        this._addChildNodes(template.documentElement, 3);
-
-        _this._addLine('\'\';', 3);
-        _this._addLine('}', 1);
+        return map;
     }
 
-    private _addChildNodes(element: HTMLElement, indent: number) {
-        for (var i = 0; i < element.childNodes.length; i++) {
-            var childNode = element.childNodes[i];
+    private _getSpecHTMLElementBinding(element: Element): IBinding {
+        return element['annotation'];
+    }
 
-            if (childNode.nodeType === element.ELEMENT_NODE) {
-                this._addRenderLine( < HTMLElement > childNode, indent);
-            } else if (childNode.nodeType === element.TEXT_NODE) {
-                var text = childNode.textContent.trim();
-                if (text) {
-                    //this._addLine("'" + Encode.toHtml(text) + "' +", indent);
-                    this._addLine("'" + _toHtml(text) + "' +", indent);
+    private _getSpecHTMLElement(element: Element): IBlockSpec {
+        return {
+            type: BlockType.Element,
+            tag: element.tagName,
+            attr: this._getSpecHTMLElementAttributes(element),
+            binding: this._getSpecHTMLElementBinding(element),
+            children: this._getSpecChildren(element.childNodes)
+        };
+    }
+
+    private _getSpecTextElement(element: Node): IBlockSpec {
+        
+        return {
+            type: BlockType.Text,
+            value: element.nodeValue
+        };
+    }
+
+    private _getSpecChildren(nodes: NodeList): IBlockSpec[]{
+        var children: IBlockSpec[] = [];
+
+        if (nodes.length) {
+            for (var i = 0; i < nodes.length; i++) {
+                var child = nodes[i];
+                if (child.nodeType === child.ELEMENT_NODE) {
+                    children.push(this._getSpecElement(<Element>child));
+                } else if (child.nodeType === child.TEXT_NODE) {
+                    children.push(this._getSpecTextElement(child));
                 }
             }
         }
+
+        return children;
     }
 
-    private _addRenderLine(element: HTMLElement, indent: number) {
-        var _this = this;
+    private _addSpec(template: CompiledViewTemplate) {
+        this._addLine();
+        this._addLine('_spec = <any> {', 1);
 
-        if (element.tagName === 'js-view') {
-            _this._addLine('this.' + element.getAttribute('js-name') + '.renderHtml() +', indent);
-        } else {
-            var nodeType = element.nodeType;
-            var tagName = element.tagName;
-            var annotation = element['annotation'];
-            var hasContent = (element.childNodes.length > 0) || (annotation && (annotation.html || annotation.text || annotation.repeat));
-            var closingTag = hasContent ? ">' +" : "></" + tagName + ">' +";
+        var spec = this._getSpecObject(template);
+        var specString = JSON.stringify(spec, null, 4);
 
-            _this._addLine("'<" + tagName +
-                this._getIdAttribute(element) +
-                this._getCreationMethod(element, '_genStyle', 'css', 'style') +
-                this._getCreationMethod(element, '_genClass', 'className', 'class') +
-                this._getCreationMethod(element, '_genAttr', 'attr') +
-                this._getRemainingAttributes(element) +
-                closingTag, indent);
+        var lines = specString.split('\n');
+        lines.shift(); // skip opening {
+        lines.pop(); // skip closing }
 
-            if (hasContent) {
-                if (_this._addElementContent(element, indent + 1)) {
-                    _this._addChildNodes(element, indent + 1);
-                }
-                _this._addLine("'</" + tagName + ">' +", indent);
-            }
-        }
-    }
+        lines.forEach((line) => {
+            this._addLine(line, 1);
+        });
 
-    private _addElementContent(element: HTMLElement, indent: number) {
-        var annotation = element['annotation'];
-        var shouldRenderChildNodes = true;
-
-        if (annotation) {
-            if (annotation.text) {
-                this._addLine('this._genText(\'' + annotation.text + '\') +', indent);
-            }
-
-            if (annotation.html) {
-                this._addLine('this._genHtml(\'' + annotation.text + '\') +', indent);
-            }
-        }
-
-        return shouldRenderChildNodes;
-    }
-*/
-    private _addAnnotations(template: CompiledViewTemplate) {
-        var _this = this;
-        var annotationBlocks = [];
-
-        for (var id in template.annotations) {
-            annotationBlocks.push(JSON.stringify(template.annotations[id], null, 4));
-        }
-        if (annotationBlocks.length) {
-            _this._addLine();
-            _this._addLine('_bindings = [', 1);
-
-            annotationBlocks.join(',\n').split('\n').forEach(function(block) {
-                _this._addLine(block, 2);
-            });
-
-            _this._addLine('];', 1);
-        }
+        this._addLine('};', 1);
     }
 
     private _getIdAttribute(element: HTMLElement): string {

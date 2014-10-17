@@ -278,6 +278,14 @@ class CompiledViewTemplate {
         return true;
     }
 
+    private _processIfElement(element: HTMLElement) {
+        
+    }
+
+    private _processRepeatElement(element: HTMLElement) {
+        
+    }
+
     private _processViewElement(element: HTMLElement) {
         var subTemplate = new CompiledViewTemplate();
         var name = element.getAttribute('js-name');

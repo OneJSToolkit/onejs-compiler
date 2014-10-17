@@ -22,7 +22,7 @@ var ViewTemplateDefinition = {
             'js-css': {},
             'js-options': {}
         },
-        children: [ 'default', 'js-view' ]
+        children: ['default', 'js-view']
     },
     'js-control': {
         description: 'Indicates that a child view should be placed here.',
@@ -56,6 +56,41 @@ var ViewTemplateDefinition = {
         children: []
     },
 
+    'js-if': {
+        description: 'Conditional region',
+        attributes: {
+            'source': {
+                description: 'The property that provides the condition for the if'
+            }
+        },
+        children: [
+            'js-section',
+            'js-control',
+            'js-view',
+            'js-repeat',
+            'default'
+        ]
+    },
+
+    'js-repeat': {
+        description: 'Repeated region',
+        attributes: {
+            'source': {
+                description: 'The property that provides the List to repeat'
+            },
+            'iterator': {
+                description: 'The name of the iterator for binding purposes'
+            }
+        },
+        children: [
+            'js-section',
+            'js-control',
+            'js-view',
+            'js-if',
+            'default'
+        ]
+    },
+
     'default': {
         description: 'Match for any html element.',
         example: '<div></div>',
@@ -80,6 +115,8 @@ var ViewTemplateDefinition = {
             'js-section',
             'js-control',
             'js-view',
+            'js-if',
+            'js-repeat',
             'default'
         ]
     }

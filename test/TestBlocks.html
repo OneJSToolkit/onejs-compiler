@@ -1,0 +1,18 @@
+<div js-type="ParentType">
+    <div class="searchBox">
+        <span js-bind="text:searchText"></span>
+        <js-view js-name="searchIcon" js-type="../ImageSprite/ImageSprite" js-data="searchIcon"></js-view>
+    </div>
+    <div class="scrollArea">
+        <js-repeat source="commands" iterator="command">
+            <div js-bind="text: command">hi</div>
+        </js-repeat>
+
+        <js-if source="hasQuota">
+            <div class="c-QuotaPane">
+                <div class="quota">37.4GB available</div>
+            </div>
+        </js-if>
+
+    </div>
+</div>
