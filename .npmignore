@@ -1,3 +1,9 @@
-qunit
+node_modules
+temp
+definitions
+src
 test
+
 gulpfile.js
+karma*.js
+.travis*
