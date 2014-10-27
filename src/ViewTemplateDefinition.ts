@@ -105,10 +105,6 @@ var ViewTemplateDefinition = {
             },
             'js-id': {
                 description: 'Defines an id for the element so that on activation the view can find the element and provide it to the view model on activation.'
-            },
-            'js-repeat': {
-                description: 'Indicates which collection property to repeat the section for, and how to identify the item/index.',
-                example: 'item,itemIndex in items'
             }
         },
         children: [
