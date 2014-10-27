@@ -9,16 +9,22 @@
         <table class="ms-leftnav-table" cellpadding="0" cellspacing="0">
             <tr valign="top">
                 <td>
-                    <div class="linkArea" js-repeat="group in linkGroups">
-                        <div class="linkGroup" js-repeat="link in group.links">
+                    <div class="linkArea">
+                    <js-repeat source="linkGroups" iterator="group">
+                        <div class="linkGroup">
+                        <js-repeat source="group.links" iterator="link">
                             <div js-bind="className.isExpanded:link.isExpanded" js-userAction="$view.expandButtonClicked:$view.toggle('link.isExpanded')">
                                 <js-view js-name="expandButton" js-type="../ImageButton/ImageButton" js-data="$owner.expandButtonModel"></js-view>
                                 <a class="link ms-font-l" js-bind="className.isSelected:$parent.isSelected(link),href:link.url,text:link.text"></a>
-                                <div class="subLinks" js-repeat="link in link.links">
+                                <div class="subLinks">
+                                <js-repeat source="link.links" iterator="link">
                                     <a class="sub link ms-font-s" js-bind="className.isSelected:$parent.isSelected(link),href:link.url,text:link.text"></a>
+                                </js-repeat>
                                 </div>
                             </div>
+                            </js-repeat>
                         </div>
+                    </js-repeat>
                     </div>
                 </td>
             </tr>

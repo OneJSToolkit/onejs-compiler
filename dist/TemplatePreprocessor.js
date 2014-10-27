@@ -31,7 +31,7 @@ function _cloneAttributes(dest, source) {
 }
 
 function _expandNestedViews(element) {
-    if (element.tagName != 'js-view' && _isCustomElement(element)) {
+    if (!_isOneJSElement(element) && _isCustomElement(element)) {
         var viewName = _getViewName(element.tagName);
         var newElement = element.ownerDocument.createElement('js-view');
 
@@ -75,8 +75,12 @@ function _getViewName(tagName) {
     return name;
 }
 
+function _isOneJSElement(child) {
+    return (_oneJSElements.indexOf(child.tagName) !== -1);
+}
+
 function _isCustomElement(child) {
-    return (_knownElements.indexOf(child.tagName) == -1);
+    return (_knownElements.indexOf(child.tagName) === -1);
 }
 
 function _ensureChildrenHaveNames(element) {
@@ -133,6 +137,12 @@ function _renameAllAttributes(element, from, to) {
         }
     }
 }
+
+var _oneJSElements = [
+    'js-view',
+    'js-if',
+    'js-repeat'
+];
 
 var _knownElements = [
     'a',

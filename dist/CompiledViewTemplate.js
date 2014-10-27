@@ -243,6 +243,12 @@ var CompiledViewTemplate = (function () {
         return true;
     };
 
+    CompiledViewTemplate.prototype._processIfElement = function (element) {
+    };
+
+    CompiledViewTemplate.prototype._processRepeatElement = function (element) {
+    };
+
     CompiledViewTemplate.prototype._processViewElement = function (element) {
         var subTemplate = new CompiledViewTemplate();
         var name = element.getAttribute('js-name');
