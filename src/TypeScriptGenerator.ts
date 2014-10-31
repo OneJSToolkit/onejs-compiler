@@ -329,7 +329,7 @@ class TypeScriptGenerator extends BaseGenerator {
         var firstElement:Element = template.documentElement;
 
         if (template.documentElement.tagName == 'js-view') {
-            firstElement = template.documentElement.firstElementChild;
+            firstElement = <Element>template.documentElement.firstChild;
         }
         return this._getSpecElement(firstElement);
     }
