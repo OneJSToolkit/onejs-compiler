@@ -373,6 +373,7 @@ class TypeScriptGenerator extends BaseGenerator {
         return {
             type: BlockType.View,
             name: element.getAttribute('js-name'),
+            binding: this._getSpecHTMLElementBinding(element),
             children: this._getSpecChildren(element.childNodes)
         };
     }
