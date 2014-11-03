@@ -17,6 +17,8 @@ var TemplatePreprocessor = (function () {
 
         _ensureChildrenHaveNames(rootElement);
 
+        _expandRepeatAttributes(rootElement);
+
         return rootElement;
     };
     return TemplatePreprocessor;
@@ -27,6 +29,32 @@ function _cloneAttributes(dest, source) {
         var attrib = source.attributes[i];
 
         dest.setAttribute(attrib.name, attrib.value);
+    }
+}
+
+function _expandRepeatAttributes(element) {
+    if (element && element.getAttribute) {
+        var repeat = element.getAttribute('js-repeat');
+
+        if (repeat) {
+            var repeatParts = repeat.split(' in ');
+            var repeatElement = element.ownerDocument.createElement('js-repeat');
+
+            repeatElement.setAttribute('source', repeatParts[1]);
+            repeatElement.setAttribute('iterator', repeatParts[0]);
+
+            while (element.childNodes && element.childNodes.length) {
+                repeatElement.appendChild(element.childNodes[0]);
+            }
+
+            element.appendChild(repeatElement);
+            element.removeAttribute('js-repeat');
+            element = repeatElement;
+        }
+
+        for (var i = 0; element.childNodes && i < element.childNodes.length; i++) {
+            _expandRepeatAttributes(element.childNodes[i]);
+        }
     }
 }
 

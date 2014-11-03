@@ -291,7 +291,7 @@ var TypeScriptGenerator = (function (_super) {
         var firstElement = template.documentElement;
 
         if (template.documentElement.tagName == 'js-view') {
-            firstElement = template.documentElement.firstElementChild;
+            firstElement = template.documentElement.firstChild;
         }
         return this._getSpecElement(firstElement);
     };
@@ -335,6 +335,7 @@ var TypeScriptGenerator = (function (_super) {
         return {
             type: 6 /* View */,
             name: element.getAttribute('js-name'),
+            binding: this._getSpecHTMLElementBinding(element),
             children: this._getSpecChildren(element.childNodes)
         };
     };
