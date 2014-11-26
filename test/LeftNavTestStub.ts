@@ -1,11 +1,11 @@
-import ViewTestStub = require('../onejs/ViewTestStub');
+import ViewTestStub = require('./onejs/ViewTestStub');
 import LeftNavBaseTestStub = require('./LeftNavBaseTestStub');
 import GetSubControlLocation = require('../onejs/GetSubControlLocation');
-import BazTestStub = require('../Baz/BazTestStub');
-import BozTestStub = require('../Boz/BozTestStub');
-import SearchBoxTestStub = require('../SearchBox/SearchBoxTestStub');
+import BazTestStub = require('./BazTestStub');
+import BozTestStub = require('./BozTestStub');
+import SearchBoxTestStub = require('./SearchBoxTestStub');
 import ImageButtonTestStub = require('../ImageButton/ImageButtonTestStub');
-import QuotaPaneTestStub = require('../QuotaPane/QuotaPaneTestStub');
+import QuotaPaneTestStub = require('./QuotaPaneTestStub');
 
 class LeftNavTestStub extends ViewTestStub {
     originalViewName = 'LeftNav';

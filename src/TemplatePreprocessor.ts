@@ -1,8 +1,14 @@
+/// <reference path="interfaces.d.ts" />
+
 // This class allows us to "massage" old templating syntaxes into
 // syntax the compiler expects.
 
+var _options: ICompilerOptions;
+
 class TemplatePreprocessor {
-    static process(rootElement: HTMLElement): HTMLElement {
+
+    static process(rootElement: HTMLElement, options: ICompilerOptions): HTMLElement {
+        _options = options;
 
         // rename all userActions to events.
         _renameAllAttributes(rootElement, 'js-event', 'js-userAction');
@@ -61,6 +67,7 @@ function _expandRepeatAttributes(element) {
 function _expandNestedViews(element) {
     if (!_isOneJSElement(element) && _isCustomElement(element)) {
         var viewName = _getViewName(element.tagName);
+        var viewPath = _options.paths.defaultView.split('{{viewType}}').join(viewName);
         var newElement = element.ownerDocument.createElement('js-view');
 
         newElement.attributes = element.attributes;
@@ -68,7 +75,7 @@ function _expandNestedViews(element) {
 
 
         if (!newElement.getAttribute('js-type')) {
-            newElement.setAttribute('js-type', '../' + viewName + '/' + viewName);
+            newElement.setAttribute('js-type', viewPath);
         }
 
         if (element.parentNode) {

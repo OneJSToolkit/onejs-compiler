@@ -1,3 +1,5 @@
+/// <reference path="interfaces.d.ts" />
+
 import CompiledViewTemplate = require('./CompiledViewTemplate');
 
 var CRLF = '\r\n';
@@ -12,11 +14,23 @@ var INDENT = '    ';
 class BaseGenerator {
     public output = '';
     public template: CompiledViewTemplate;
+    public options = {
+        paths: {
+            onejs: '../onejs/',
+            defaultView: '../{{viewType}}/{{viewType}}'
+        }
+    }
+
+    public _setOptions(options) {
+        if (options) {
+            this.options = options;
+        }
+    }
 
     public _getTemplate(templateContent: string): CompiledViewTemplate {
         this._reset();
 
-        this.template = new CompiledViewTemplate(templateContent);
+        this.template = new CompiledViewTemplate(templateContent, this.options);
 
         if (this.template.errors.length) {
             var errorMessage = this.template.errors.join('\n');

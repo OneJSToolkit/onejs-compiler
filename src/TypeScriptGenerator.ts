@@ -1,3 +1,5 @@
+/// <reference path="interfaces.d.ts" />
+
 import BaseGenerator = require('./BaseGenerator');
 import CompiledViewTemplate = require('./CompiledViewTemplate');
 
@@ -56,8 +58,11 @@ interface IBlockSpec {
 /// </summary>
 class TypeScriptGenerator extends BaseGenerator {
 
-    public generate(templateContent: string): string {
+    public generate(templateContent: string, options?: ICompilerOptions): string {
         var _this = this;
+
+        _this._setOptions(options);
+
         var template = this.template = _this._getTemplate(templateContent);
         var interfaceName = 'I' + template.name + 'Model';
 
@@ -108,11 +113,11 @@ class TypeScriptGenerator extends BaseGenerator {
         } = {};
 
         uniqueControlTypes['View'] = {
-            path: '../onejs/View'
+            path: this.options.paths.onejs + 'View'
         };
 
         uniqueControlTypes['DomUtils'] = {
-            path: '../onejs/DomUtils'
+            path: this.options.paths.onejs + 'DomUtils'
         };
 
         uniqueControlTypes[template.baseViewType] = {
@@ -154,9 +159,7 @@ class TypeScriptGenerator extends BaseGenerator {
         Object.keys(uniqueControlTypes).forEach((typeName) => {
             var controlType = uniqueControlTypes[typeName];
 
-            var relativePath = controlType.path[0] === '.' ? controlType.path : './' + controlType.path;
-
-            this._addLine('import ' + typeName + ' = require(\'' + relativePath + '\');');
+            this._addLine('import ' + typeName + ' = require(\'' + controlType.path + '\');');
 
             // For imports that have no references, we need to add a var reference to trick TypeScript into including it.
             if (controlType.forceReference) {

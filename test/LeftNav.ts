@@ -1,12 +1,12 @@
 import LeftNavModel = require('./LeftNavModel');
-import View = require('../onejs/View');
-import DomUtils = require('../onejs/DomUtils');
+import View = require('onejs/View');
+import DomUtils = require('onejs/DomUtils');
 import LeftNavBase = require('./LeftNavBase');
-import Baz = require('../Baz/Baz');
-import Boz = require('../Boz/Boz');
-import SearchBox = require('../SearchBox/SearchBox');
+import Baz = require('./Baz');
+import Boz = require('./Boz');
+import SearchBox = require('./SearchBox');
 import ImageButton = require('../ImageButton/ImageButton');
-import QuotaPane = require('../QuotaPane/QuotaPane');
+import QuotaPane = require('./QuotaPane');
 import LeftNavcss = require('./LeftNav.css');
 
 DomUtils.loadStyles(LeftNavcss.styles);

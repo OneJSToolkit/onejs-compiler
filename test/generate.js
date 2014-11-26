@@ -15,7 +15,13 @@ if (process.argv.length < 3) {
     var interfaceGenerator = new TypeScriptViewModelGenerator();
     var testStubeGenerator = new TypeScripTestStubGenerator();
 
-    fs.writeFileSync(fileName + '.ts', tsGenerator.generate(fileContent, fileName));
+    fs.writeFileSync(fileName + '.ts', tsGenerator.generate(fileContent, {
+        paths: {
+            onejs: 'onejs/',
+            defaultView: './{{viewType}}'
+        }
+    }));
+
     fs.writeFileSync('I' + tsGenerator.template.name + 'Model.ts', interfaceGenerator.generate(fileContent));
-    fs.writeFileSync(fileName + 'TestStub.ts', testStubeGenerator.generate(fileContent, fileName));
+    fs.writeFileSync(fileName + 'TestStub.ts', testStubeGenerator.generate(fileContent));
 }

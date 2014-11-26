@@ -14,7 +14,9 @@ var _getSubControLocationClass = 'GetSubControlLocation';
  */
 class TypeScriptTestStubGenerator extends BaseGenerator {
 
-    public generate(templateContent: string): string {
+    public generate(templateContent: string, options?: ICompilerOptions): string {
+        this._setOptions(options);
+
         var template = this.template = this._getTemplate(templateContent);
 
         this._addImports(template)

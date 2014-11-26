@@ -10,6 +10,8 @@ import TemplatePreprocessor = require('./TemplatePreprocessor');
 /// occur during parsing.
 /// </summary>
 
+var _options: ICompilerOptions;
+
 class CompiledViewTemplate {
     public name: string;
     public fullType: string;
@@ -31,7 +33,9 @@ class CompiledViewTemplate {
     public _blockCount = 0;
     private _annotationCount = 0;
 
-    constructor(templateContent ? : string) {
+    constructor(templateContent?: string, options?: ICompilerOptions) {
+        _options = _options || options;
+
         if (templateContent) {
             this.parse(templateContent);
         } else {
@@ -42,7 +46,7 @@ class CompiledViewTemplate {
     public parse(templateContent: string) {
         this._reset();
 
-        var doc = TemplatePreprocessor.process(new XMLDOM.DOMParser().parseFromString(templateContent, 'application/xhtml+xml').documentElement);
+        var doc = TemplatePreprocessor.process(new XMLDOM.DOMParser().parseFromString(templateContent, 'application/xhtml+xml').documentElement, _options);
         this.parseRootElement(doc);
     }
 
@@ -51,11 +55,20 @@ class CompiledViewTemplate {
         this.fullType = element.getAttribute('js-type');
         this.name = this._stripPath(element.getAttribute('js-type'));
         this.isPassThrough = Boolean(element.getAttribute('js-passThrough')) || false;
-        this.baseViewFullType = element.getAttribute('js-baseType') || '../onejs/View';
-        this.baseViewType = this._stripPath(this.baseViewFullType);
         this.viewModelType = element.getAttribute('js-model') || '';
         this.options = element.getAttribute('js-options') || '';
         this.cssInclude = (element.getAttribute('js-css') || '');
+
+        var baseViewType = element.getAttribute('js-baseType');
+
+        // Add ./ relative pathing if necessary.
+        if (baseViewType) {
+            this.baseViewFullType = (baseViewType[0] == '.') ? baseViewType : ('./' + baseViewType);
+        } else {
+            this.baseViewFullType = _options.paths.onejs + 'View';
+        }
+
+        this.baseViewType = this._stripPath(this.baseViewFullType);
 
         var requires = element.getAttribute('js-require');
 

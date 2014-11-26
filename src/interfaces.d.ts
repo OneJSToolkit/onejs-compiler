@@ -13,3 +13,10 @@ interface IChildView<T> {
     shouldImport: boolean;
     template: T;
 }
+
+interface ICompilerOptions {
+    paths: {
+        onejs: string;
+        defaultView: string;
+    }
+}
